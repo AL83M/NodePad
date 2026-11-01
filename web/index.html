@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#07131f">
 <meta name="description" content="NodePad is a compact off-grid MeshCore terminal for the original M5Stack Cardputer. Install v2.2.6 Beta directly from a supported desktop browser.">
+<meta property="og:title" content="NodePad — Your off-grid mesh terminal">
+<meta property="og:description" content="A real off-grid MeshCore interface for the original M5Stack Cardputer.">
+<meta property="og:image" content="https://al83m.github.io/NodePad/assets/nodepad-cardputer.webp">
 <title>NodePad — Your off-grid mesh terminal</title>
 <style>
 :root { color-scheme:dark; --bg:#07131f; --panel:#0e2030; --edge:#25425b; --text:#ebf5fc; --muted:#a1b6c5; --blue:#49c8ff; --blue2:#1577b8; --green:#73dfb9; }
@@ -31,12 +34,19 @@ h1 span { color:var(--blue); }
 .secondary { border:1px solid #42657c; }.secondary:hover { background:#143047; }
 .fine { font-size:12px; color:#91aaba; margin-top:15px; }
 .product-photo { margin:0; border:1px solid #32536a; background:#102538; border-radius:22px; padding:10px; box-shadow:0 30px 90px #0007,0 0 48px #26bdff12; transform:rotate(-1deg); overflow:hidden; }
-.product-photo img { display:block; width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; border-radius:12px; }
+.product-photo img { display:block; width:100%; height:auto; aspect-ratio:1200/779; object-fit:contain; border-radius:12px; }
 .product-photo figcaption { padding:11px 5px 3px; display:flex; align-items:center; justify-content:space-between; gap:12px; color:#b7cbd9; font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; }
 .photo-live { display:inline-flex; align-items:center; gap:7px; font-size:11px; color:var(--green); }
 .photo-live::before { content:""; display:inline-block; height:7px; width:7px; border-radius:50%; background:var(--green); }
 .tested { color:#c5dee9; font-size:14px; margin:0 0 23px; }
 .tested strong { color:#e9f7fd; font-weight:700; }
+.photo-gallery { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+.gallery-card { margin:0; padding:10px; background:#0e2536; border:1px solid #284760; border-radius:18px; }
+.gallery-card a { display:block; border-radius:11px; overflow:hidden; }
+.gallery-card img { display:block; width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; transition:transform 180ms ease; }
+.gallery-card a:hover img { transform:scale(1.015); }
+.gallery-card figcaption { padding:15px 9px 8px; font-size:15px; font-weight:700; }
+.gallery-card .caption-note { display:block; margin-top:4px; font-size:13px; font-weight:400; color:var(--muted); }
 .section { padding:30px 0 70px; }
 .section h2 { font-size:32px; letter-spacing:-.04em; line-height:1.2; margin:10px 0 16px; }
 .section-lead { max-width:710px; color:var(--muted); margin:0 0 30px; }
@@ -59,7 +69,7 @@ esp-web-install-button { --esp-tools-button-color:#49c8ff; --esp-tools-button-te
 footer { border-top:1px solid #20394c; padding:27px 0 40px; color:#92abba; font-size:13px; }
 footer .wrap { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
 footer a { color:#b7deed; }
-@media(max-width:750px) { .hero { grid-template-columns:1fr; padding-top:39px; gap:25px; }.product-photo { max-width:520px; transform:none; }.install { grid-template-columns:1fr; }.install-side+.install-side { border-left:0; border-top:1px solid var(--edge); }.stats { grid-template-columns:1fr; }.navlinks { gap:13px; }.navlinks a:nth-child(2) { display:none; } h1 { font-size:44px; } }
+@media(max-width:750px) { .hero { grid-template-columns:1fr; padding-top:39px; gap:25px; }.product-photo { max-width:520px; transform:none; }.install { grid-template-columns:1fr; }.install-side+.install-side { border-left:0; border-top:1px solid var(--edge); }.stats { grid-template-columns:1fr; } .photo-gallery { grid-template-columns:1fr; }.navlinks { gap:13px; }.navlinks a:nth-child(2) { display:none; } h1 { font-size:44px; } }
 @media(prefers-reduced-motion:reduce) { html {scroll-behavior:auto;} }
 </style>
 <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
@@ -81,7 +91,7 @@ footer a { color:#b7deed; }
 <p class="fine">Independent community project. Not affiliated with M5Stack or MeshCore.</p>
 </div>
 <figure class="product-photo">
-<img src="./assets/nodepad-cardputer.webp" width="1100" height="825" decoding="async" fetchpriority="high" alt="Photograph of an original M5Stack Cardputer running the NodePad menu on its real display.">
+<img src="./assets/nodepad-cardputer.webp" width="1200" height="779" decoding="async" fetchpriority="high" alt="Real photograph of the original M5Stack Cardputer running the NodePad v2.2.6 main menu, photographed from the front.">
 <figcaption><span>NodePad on the real Cardputer</span><span class="photo-live">FIELD PHOTO</span></figcaption>
 </figure>
 </section>
@@ -92,6 +102,14 @@ footer a { color:#b7deed; }
 <div class="feature"><div class="glyph">⌨</div><h3>Public + private chat</h3><p>Compose public channel messages and direct messages with real keys.</p></div>
 <div class="feature"><div class="glyph">◉</div><h3>Live repeaters</h3><p>Browse heard repeaters, request path discovery and view link information when available.</p></div>
 <div class="feature"><div class="glyph">⌁</div><h3>Bluetooth workflow</h3><p>Select a MeshCore BLE Companion, enter its PIN and reconnect without a phone.</p></div>
+</div>
+</section>
+<section id="gallery" class="wrap section" aria-labelledby="gallery-heading">
+<div class="eyebrow">REAL DEVICE PHOTOS</div><h2 id="gallery-heading">NodePad, on the actual Cardputer.</h2>
+<p class="section-lead">No renders: these photos show the real v2.2.6 interface on the original M5Stack Cardputer.</p>
+<div class="photo-gallery">
+<figure class="gallery-card"><a href="./assets/nodepad-main-menu.webp" target="_blank" rel="noopener noreferrer" aria-label="Open larger photograph of the NodePad main menu"><img src="./assets/nodepad-main-menu.webp" width="960" height="720" loading="lazy" decoding="async" alt="Close-up photograph of the real NodePad main menu with Chat, Private Chats, Nodes, Ping Repeaters and Live Repeaters."></a><figcaption>Main menu <span class="caption-note">Public &amp; private chats, nodes and repeater tools</span></figcaption></figure>
+<figure class="gallery-card"><a href="./assets/nodepad-boot-screen.webp" target="_blank" rel="noopener noreferrer" aria-label="Open larger photograph of the NodePad startup screen"><img src="./assets/nodepad-boot-screen.webp" width="960" height="720" loading="lazy" decoding="async" alt="Close-up photograph of the NodePad startup screen reading Off-Grid Mesh Terminal for M5Stack Cardputer v2.2.6."></a><figcaption>Boot screen <span class="caption-note">The NodePad v2.2.6 startup splash</span></figcaption></figure>
 </div>
 </section>
 <section id="install" class="wrap section">
