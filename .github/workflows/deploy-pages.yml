@@ -46,7 +46,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p site/firmware
-          cp web/index.html web/manifest.json site/
+          cp -R web/. site/
           cp build/NodePad_V2_2_6.ino.bin site/firmware/NodePad_v2.2.6_app_0x10000.bin
           python3 - <<'PY'
           from pathlib import Path

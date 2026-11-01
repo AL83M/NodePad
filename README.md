@@ -24,7 +24,7 @@ This is an independent community project, not an official MeshCore, M5Stack or S
 ## Hardware
 
 - Original **M5Stack Cardputer (ESP32-S3)**, used for development
-- A separate MeshCore **Companion BLE** radio (for example a supported Seeed XIAO ESP32-S3 + LoRa module)
+- A separate MeshCore **Companion BLE** radio; tested with **Heltec V3** and **XIAO Wio** companions
 - USB-C data cable for flashing
 
 A standalone repeater or USB-only Companion is **not** interchangeable with a BLE Companion. NodePad itself does **not** transmit LoRa.
