@@ -1,0 +1,65 @@
+name: Build NodePad firmware
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "firmware/**"
+      - ".github/workflows/build-firmware.yml"
+  pull_request:
+    paths:
+      - "firmware/**"
+      - ".github/workflows/build-firmware.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+
+      - name: Install ESP32 platform and dependencies
+        env:
+          ESP32_INDEX: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+        run: |
+          arduino-cli core update-index --additional-urls "$ESP32_INDEX"
+          arduino-cli core install esp32:esp32@3.3.7 --additional-urls "$ESP32_INDEX"
+          arduino-cli lib update-index
+          arduino-cli lib install "M5Cardputer@1.1.1" "NimBLE-Arduino@2.3.9"
+
+      - name: Compile for original Cardputer (ESP32-S3)
+        shell: bash
+        run: |
+          set -euo pipefail
+          arduino-cli compile \
+            --fqbn "esp32:esp32:m5stack_cardputer:CDCOnBoot=cdc,USBMode=hwcdc,FlashSize=8M,PartitionScheme=default_8MB" \
+            --output-dir build \
+            firmware/NodePad_V2_2_6
+
+      - name: Collect flashable firmware
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          ls -lh build/
+          APP="build/NodePad_V2_2_6.ino.bin"
+          test -s "$APP"
+          cp "$APP" dist/NodePad_v2.2.6_app_0x10000.bin
+          if test -s build/NodePad_V2_2_6.ino.merged.bin; then
+            cp build/NodePad_V2_2_6.ino.merged.bin dist/NodePad_v2.2.6_factory_0x0000.bin
+          fi
+          sha256sum dist/* > dist/SHA256SUMS.txt
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NodePad-v2.2.6-binaries
+          path: dist/
+          if-no-files-found: error

@@ -1,0 +1,19 @@
+# Generated firmware and build files
+*.bin
+*.elf
+*.map
+*.hex
+*.uf2
+build/
+.pio/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Never commit local secrets or logs
+*.log
+secrets.h
+config.local.h
+credentials.*
