@@ -1,0 +1,87 @@
+name: Deploy NodePad web installer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - "firmware/**"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: nodepad-pages
+  cancel-in-progress: false
+
+jobs:
+  build-site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+      - name: Install ESP32 platform and dependencies
+        env:
+          ESP32_INDEX: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+        run: |
+          arduino-cli core update-index --additional-urls "$ESP32_INDEX"
+          arduino-cli core install esp32:esp32@3.3.7 --additional-urls "$ESP32_INDEX"
+          arduino-cli lib update-index
+          arduino-cli lib install "M5Cardputer@1.1.1" "NimBLE-Arduino@2.3.9"
+      - name: Build NodePad firmware
+        run: |
+          set -euo pipefail
+          arduino-cli compile \
+            --fqbn "esp32:esp32:m5stack_cardputer:CDCOnBoot=cdc,USBMode=hwcdc,FlashSize=8M,PartitionScheme=default_8MB" \
+            --output-dir build \
+            firmware/NodePad_V2_2_6
+      - name: Prepare web-flash image segments
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p site/firmware
+          cp web/index.html web/manifest.json site/
+          cp build/NodePad_V2_2_6.ino.bin site/firmware/NodePad_v2.2.6_app_0x10000.bin
+          python3 - <<'PY'
+          from pathlib import Path
+          image=Path("build/NodePad_V2_2_6.ino.merged.bin").read_bytes()
+          app=Path("build/NodePad_V2_2_6.ino.bin").read_bytes()
+          assert len(image) == 8 * 1024 * 1024, "Unexpected merged flash size"
+          assert image[0] == 0xE9, "Invalid ESP32-S3 bootloader image"
+          assert image[0x8000:0x8002] == bytes([0xAA,0x50]), "Partition table missing"
+          assert image[0x10000:0x10000+len(app)] == app, "App differs from merged firmware"
+          blocks=[
+            ("NodePad_v2.2.6_bootloader_0x0000.bin",0x0,0x8000),
+            ("NodePad_v2.2.6_partitions_0x8000.bin",0x8000,0x9000),
+            ("NodePad_v2.2.6_boot_app0_0xE000.bin",0xE000,0x10000),
+          ]
+          dest=Path("site/firmware")
+          for name,start,end in blocks:
+              (dest/name).write_bytes(image[start:end])
+              print(f"{name}: {end-start} bytes")
+          PY
+          touch site/.nojekyll
+          find site -type f -maxdepth 2 -printf '%p %s bytes\n'
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload GitHub Pages website
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  deploy:
+    needs: build-site
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish website
+        id: deployment
+        uses: actions/deploy-pages@v4

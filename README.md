@@ -4,6 +4,8 @@
 
 **Version:** v2.2.6 Beta — community-tested, wider validation welcome.
 
+**Web installer:** [Install NodePad on your original Cardputer](https://al83m.github.io/NodePad/) (GitHub Pages must be enabled; online flashing is still awaiting hardware validation). See [setup instructions](docs/WEB_INSTALLER.md).
+
 NodePad turns the original M5Stack Cardputer into a small, keyboard-driven **Bluetooth Low Energy interface for a separate MeshCore Companion** radio. The Companion handles LoRa; the Cardputer provides the keyboard, display and controls.
 
 This is an independent community project, not an official MeshCore, M5Stack or Seeed Studio product.

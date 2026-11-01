@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07131f">
+<meta name="description" content="NodePad is a compact off-grid MeshCore terminal for the original M5Stack Cardputer. Install v2.2.6 Beta directly from a supported desktop browser.">
+<title>NodePad — Your off-grid mesh terminal</title>
+<style>
+:root { color-scheme:dark; --bg:#07131f; --panel:#0e2030; --edge:#25425b; --text:#ebf5fc; --muted:#a1b6c5; --blue:#49c8ff; --blue2:#1577b8; --green:#73dfb9; }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:radial-gradient(ellipse 70% 45% at 60% 0%,#123f60 0%,transparent 70%),var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Arial,sans-serif; line-height:1.55; }
+a { color:inherit; } a:focus-visible,button:focus-visible { outline:2px solid var(--blue); outline-offset:4px; }
+.wrap { max-width:1090px; padding:0 24px; margin:auto; }
+.nav { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:24px 0; }
+.brand { display:inline-flex; gap:12px; align-items:center; text-decoration:none; font-size:21px; font-weight:800; letter-spacing:-.7px; }
+.mark { width:40px; height:40px; border:1px solid #356687; background:linear-gradient(135deg,#0f415c,#092133); border-radius:11px; display:grid; place-items:center; color:#65d7ff; font:700 16px/1 ui-monospace,SFMono-Regular,Consolas,monospace; }
+.navlinks { display:flex; gap:24px; align-items:center; color:#b7cbd9; font-size:14px; }
+.navlinks a { text-decoration:none; }.navlinks a:hover { color:var(--blue); }
+.hero { padding:73px 0 76px; display:grid; gap:55px; grid-template-columns:1.08fr .92fr; align-items:center; }
+.eyebrow { color:var(--green); font:700 12px/1.4 ui-monospace,SFMono-Regular,monospace; letter-spacing:.12em; text-transform:uppercase; }
+h1 { font-size:clamp(42px,6.5vw,70px); line-height:1.04; letter-spacing:-.06em; margin:20px 0 22px; max-width:650px; }
+h1 span { color:var(--blue); }
+.lead { font-size:18px; color:var(--muted); max-width:550px; margin-bottom:26px; }
+.tags { display:flex; flex-wrap:wrap; gap:9px; margin:28px 0; }
+.tag { border:1px solid var(--edge); background:#102536; color:#b7ccda; border-radius:99px; padding:6px 11px; font:12px/1.2 ui-monospace,monospace; }
+.actions { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.primary,.secondary { padding:13px 20px; border-radius:11px; text-decoration:none; font-weight:750; display:inline-flex; align-items:center; justify-content:center; min-height:47px; }
+.primary { background:var(--blue); color:#071724; }.primary:hover { background:#8de2ff; }
+.secondary { border:1px solid #42657c; }.secondary:hover { background:#143047; }
+.fine { font-size:12px; color:#91aaba; margin-top:15px; }
+.terminal { background:#040d16; border:1px solid #36566a; border-radius:23px; padding:17px; box-shadow:0 30px 90px #0008,0 0 55px #26bdff1c; transform:rotate(1.3deg); }
+.devicehead { display:flex; align-items:center; justify-content:space-between; color:#99afbe; font:11px ui-monospace,monospace; padding:5px 8px 14px; letter-spacing:.08em; }
+.screen { border-radius:12px; border:2px solid #214e6a; background:linear-gradient(145deg,#0d263d,#07121f); padding:22px; min-height:270px; }
+.screen-top { color:#64d6ff; display:flex; justify-content:space-between; font:700 12px ui-monospace,monospace; border-bottom:1px solid #2a455a; padding-bottom:13px; }
+.screen-title { font:700 23px ui-monospace,monospace; letter-spacing:.05em; margin:26px 0 15px; }
+.menuitem { font:13px ui-monospace,monospace; padding:8px 12px; color:#b9d4e5; border-radius:5px; }
+.menuitem.active { background:#105182; color:#fff; border-left:3px solid var(--blue); }
+.keys { display:grid; grid-template-columns:repeat(11,1fr); gap:6px; margin:17px 4px 4px; }
+.keys span { height:17px; border-radius:4px; background:#152637; border:1px solid #284358; }
+.section { padding:30px 0 70px; }
+.section h2 { font-size:32px; letter-spacing:-.04em; line-height:1.2; margin:10px 0 16px; }
+.section-lead { max-width:710px; color:var(--muted); margin:0 0 30px; }
+.install { display:grid; grid-template-columns:1fr 1fr; border:1px solid #2a5872; background:linear-gradient(135deg,#112c3f,#0c1c2a); border-radius:22px; overflow:hidden; }
+.install-side { padding:34px; }.install-side + .install-side { border-left:1px solid var(--edge); }
+.steps { list-style:none; padding:0; margin:22px 0 0; }
+.steps li { display:flex; gap:15px; margin-bottom:20px; color:#c4d8e5; }
+.num { flex:0 0 auto; width:29px; height:29px; border:1px solid #35799f; color:var(--blue); border-radius:9px; display:grid; place-items:center; font:700 12px ui-monospace,monospace; }
+.install-title { font-size:21px; font-weight:750; letter-spacing:-.03em; margin:0 0 5px; }
+.webtool { padding:24px 0 15px; }
+esp-web-install-button { --esp-tools-button-color:#49c8ff; --esp-tools-button-text-color:#061925; --esp-tools-button-border-radius:11px; }
+.installbtn { cursor:pointer; border:0; padding:15px 27px; background:#49c8ff; color:#061925; font:800 16px/1.3 inherit; font-family:inherit; font-weight:800; border-radius:11px; }
+.installbtn:hover { background:#8de2ff; }
+.warning { font-size:13px; color:#d5e3ee; border:1px solid #725e3b; background:#49371850; padding:14px 16px; border-radius:10px; margin-top:20px; }
+.unsupported { font-size:14px; color:#f0c788; }
+.stats { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; }
+.feature { border:1px solid var(--edge); background:#0d2130; border-radius:15px; padding:24px; }
+.feature h3 { margin:8px 0 7px; font-size:17px; }.feature p { font-size:14px; color:var(--muted); margin:0; }
+.feature .glyph { font:22px ui-monospace,monospace; color:var(--blue); }
+footer { border-top:1px solid #20394c; padding:27px 0 40px; color:#92abba; font-size:13px; }
+footer .wrap { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+footer a { color:#b7deed; }
+@media(max-width:750px) { .hero { grid-template-columns:1fr; padding-top:39px; gap:25px; }.terminal { max-width:520px; transform:none; }.install { grid-template-columns:1fr; }.install-side+.install-side { border-left:0; border-top:1px solid var(--edge); }.stats { grid-template-columns:1fr; }.navlinks { gap:13px; }.navlinks a:nth-child(2) { display:none; } h1 { font-size:44px; } }
+@media(prefers-reduced-motion:reduce) { html {scroll-behavior:auto;} }
+</style>
+<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+</head>
+<body>
+<header class="wrap nav">
+<a class="brand" href="#home"><span class="mark">NP</span> NodePad</a>
+<nav class="navlinks" aria-label="Main navigation"><a href="#features">Features</a><a href="#install">Web installer</a><a href="https://github.com/AL83M/NodePad" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav>
+</header>
+<main>
+<section id="home" class="wrap hero" aria-label="NodePad introduction">
+<div>
+<div class="eyebrow">OFF-GRID · MESHCORE · CARDPUTER</div>
+<h1>Your mesh.<br><span>Your terminal.</span></h1>
+<p class="lead">A pocket-sized, keyboard-first companion interface for MeshCore. Read messages, chat privately and explore repeaters — all from your original M5Stack Cardputer.</p>
+<div class="tags"><span class="tag">v2.2.6 BETA</span><span class="tag">ESP32-S3</span><span class="tag">BLE Companion</span><span class="tag">NO WIFI REQUIRED IN USE</span></div>
+<div class="actions"><a href="#install" class="primary">Install NodePad ↓</a><a href="https://github.com/AL83M/NodePad" class="secondary">Browse source ↗</a></div>
+<p class="fine">Independent community project. Not affiliated with M5Stack or MeshCore.</p>
+</div>
+<div class="terminal" aria-label="Illustrative NodePad menu preview">
+<div class="devicehead"><span>NODEPAD / CONCEPT PREVIEW</span><span>ORIGINAL CARDPUTER</span></div>
+<div class="screen">
+<div class="screen-top"><span>NODEPAD v2.2.6</span><span>BLE · READY</span></div>
+<div class="screen-title">MAIN MENU</div>
+<div class="menuitem active">▸ PUBLIC CHAT</div>
+<div class="menuitem">▸ PRIVATE CHATS</div>
+<div class="menuitem">▸ NODES</div>
+<div class="menuitem">▸ PING REPEATERS</div>
+<div class="menuitem">▸ LIVE REPEATERS</div>
+</div>
+<div class="keys" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+</div>
+</section>
+<section id="features" class="wrap section">
+<div class="eyebrow">BUILT FOR THE FIELD</div><h2>Everything you need, on a tiny screen.</h2>
+<p class="section-lead">NodePad runs on the Cardputer; a separate MeshCore Companion BLE radio provides the LoRa link.</p>
+<div class="stats">
+<div class="feature"><div class="glyph">⌨</div><h3>Public + private chat</h3><p>Compose public channel messages and direct messages with real keys.</p></div>
+<div class="feature"><div class="glyph">◉</div><h3>Live repeaters</h3><p>Browse heard repeaters, request path discovery and view link information when available.</p></div>
+<div class="feature"><div class="glyph">⌁</div><h3>Bluetooth workflow</h3><p>Select a MeshCore BLE Companion, enter its PIN and reconnect without a phone.</p></div>
+</div>
+</section>
+<section id="install" class="wrap section">
+<div class="eyebrow">INSTALL IN YOUR BROWSER</div><h2>Connect. Flash. Explore.</h2>
+<p class="section-lead">No Arduino IDE needed for installation. Use a USB-C data cable and a desktop browser with Web Serial support (Google Chrome or Microsoft Edge recommended). Brave may work if Web Serial is enabled.</p>
+<div class="install">
+<div class="install-side">
+<div class="install-title">Before you begin</div>
+<ol class="steps">
+<li><span class="num">01</span><span>Use the <strong>original M5Stack Cardputer (ESP32-S3)</strong>. This build has not been validated for Cardputer ADV or other boards.</span></li>
+<li><span class="num">02</span><span>Connect the Cardputer using a <strong>USB-C data cable</strong>; close Arduino Serial Monitor and other tools using its port.</span></li>
+<li><span class="num">03</span><span>Keep your MeshCore <strong>Companion BLE radio</strong> available for pairing after the Cardputer reboots.</span></li>
+</ol>
+</div>
+<div class="install-side">
+<div class="install-title">NodePad v2.2.6 Beta</div>
+<p style="color:var(--muted);margin-top:7px">Firmware for original M5Stack Cardputer · ESP32-S3</p>
+<div class="webtool">
+<esp-web-install-button manifest="./manifest.json">
+<button class="installbtn" slot="activate">Install NodePad via USB</button>
+<span slot="unsupported" class="unsupported">Web Serial is not supported by this browser. Open the page on desktop Chrome or Edge.</span>
+<span slot="not-allowed" class="unsupported">A secure HTTPS connection is required for USB flashing.</span>
+</esp-web-install-button>
+</div>
+<p class="fine">The installer will ask permission to access your selected USB serial device.</p>
+<div class="warning"><strong>Beta firmware — read before flashing.</strong> Flash only on the original Cardputer. Back up your existing firmware and settings first: installation or flash erase may remove saved data. Do not unplug the cable while flashing. The web flash has not yet been verified on hardware.</div>
+<p class="fine"><a href="https://github.com/AL83M/NodePad/blob/main/docs/FLASHING.md">Full flashing instructions ↗</a></p>
+</div>
+</div>
+</section>
+</main>
+<footer><div class="wrap"><span>© NodePad · Independent community project · Beta software</span><span><a href="https://github.com/AL83M/NodePad">Source code</a> · <a href="https://github.com/AL83M/NodePad/issues">Report an issue</a></span></div></footer>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "name": "NodePad",
+  "version": "2.2.6-beta",
+  "new_install_prompt_erase": true,
+  "builds": [
+    {
+      "chipFamily": "ESP32-S3",
+      "improv": false,
+      "parts": [
+        {
+          "path": "./firmware/NodePad_v2.2.6_bootloader_0x0000.bin",
+          "offset": 0
+        },
+        {
+          "path": "./firmware/NodePad_v2.2.6_partitions_0x8000.bin",
+          "offset": 32768
+        },
+        {
+          "path": "./firmware/NodePad_v2.2.6_boot_app0_0xE000.bin",
+          "offset": 57344
+        },
+        {
+          "path": "./firmware/NodePad_v2.2.6_app_0x10000.bin",
+          "offset": 65536
+        }
+      ]
+    }
+  ]
+}
