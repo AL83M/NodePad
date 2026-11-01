@@ -47,6 +47,16 @@ h1 span { color:var(--blue); }
 .gallery-card a:hover img { transform:scale(1.015); }
 .gallery-card figcaption { padding:15px 9px 8px; font-size:15px; font-weight:700; }
 .gallery-card .caption-note { display:block; margin-top:4px; font-size:13px; font-weight:400; color:var(--muted); }
+.setup-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px; }
+.setup-card { background:#0e2333;border:1px solid var(--edge);border-radius:16px;padding:24px; }
+.setup-card-head { display:flex;align-items:center;gap:12px;margin-bottom:14px; }
+.setup-num {display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;background:#113b55;border:1px solid #236e95;border-radius:10px;color:var(--blue);font:700 15px/1 ui-monospace,monospace;}
+.setup-card h3 {margin:0;font-size:17px;line-height:1.35;}
+.setup-card p {margin:0;color:var(--muted);font-size:14px;line-height:1.7;}
+.setup-card code,.setup-help code {background:#193c53;padding:2px 6px;border-radius:5px;color:#d6f0fd;font-size:.9em;}
+.setup-help {padding:22px 25px;margin-top:16px;border:1px solid #355b70;background:linear-gradient(120deg,#102a3d,#0a1d2b);border-radius:16px;color:#bcd4e4;font-size:14px;}
+.setup-help strong {color:var(--text)}
+.setup-help p {margin:7px 0 0;}
 .section { padding:30px 0 70px; }
 .section h2 { font-size:32px; letter-spacing:-.04em; line-height:1.2; margin:10px 0 16px; }
 .section-lead { max-width:710px; color:var(--muted); margin:0 0 30px; }
@@ -69,7 +79,7 @@ esp-web-install-button { --esp-tools-button-color:#49c8ff; --esp-tools-button-te
 footer { border-top:1px solid #20394c; padding:27px 0 40px; color:#92abba; font-size:13px; }
 footer .wrap { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
 footer a { color:#b7deed; }
-@media(max-width:750px) { .hero { grid-template-columns:1fr; padding-top:39px; gap:25px; }.product-photo { max-width:520px; transform:none; }.install { grid-template-columns:1fr; }.install-side+.install-side { border-left:0; border-top:1px solid var(--edge); }.stats { grid-template-columns:1fr; } .photo-gallery { grid-template-columns:1fr; }.navlinks { gap:13px; }.navlinks a:nth-child(2) { display:none; } h1 { font-size:44px; } }
+@media(max-width:750px) { .hero { grid-template-columns:1fr; padding-top:39px; gap:25px; }.product-photo { max-width:520px; transform:none; }.install { grid-template-columns:1fr; }.install-side+.install-side { border-left:0; border-top:1px solid var(--edge); }.stats { grid-template-columns:1fr; } .photo-gallery { grid-template-columns:1fr; } .setup-grid { grid-template-columns:1fr; }.navlinks { gap:13px; }.navlinks a:nth-child(2) { display:none; } h1 { font-size:44px; } }
 @media(prefers-reduced-motion:reduce) { html {scroll-behavior:auto;} }
 </style>
 <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
@@ -77,7 +87,7 @@ footer a { color:#b7deed; }
 <body>
 <header class="wrap nav">
 <a class="brand" href="#home"><span class="mark">NP</span> NodePad</a>
-<nav class="navlinks" aria-label="Main navigation"><a href="#features">Features</a><a href="#install">Web installer</a><a href="https://github.com/AL83M/NodePad" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav>
+<nav class="navlinks" aria-label="Main navigation"><a href="#features">Features</a><a href="#install">Web installer</a><a href="#setup">BLE setup</a><a href="https://github.com/AL83M/NodePad" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav>
 </header>
 <main>
 <section id="home" class="wrap hero" aria-label="NodePad introduction">
@@ -139,6 +149,18 @@ footer a { color:#b7deed; }
 <p class="fine"><a href="https://github.com/AL83M/NodePad/blob/main/docs/FLASHING.md">Full flashing instructions ↗</a></p>
 </div>
 </div>
+</section>
+<section id="setup" class="wrap section" aria-labelledby="setup-heading">
+<div class="eyebrow">AFTER INSTALLATION</div>
+<h2 id="setup-heading">Pair NodePad with your MeshCore Companion.</h2>
+<p class="section-lead">NodePad uses Bluetooth Low Energy to talk to a <strong>separate MeshCore Companion BLE radio</strong>, which handles LoRa. The original Cardputer does not need to run the radio firmware itself. This flow is for NodePad v2.2.6 Beta.</p>
+<div class="setup-grid">
+<article class="setup-card"><div class="setup-card-head"><span class="setup-num">01</span><h3>Turn on the Companion</h3></div><p>Power on your MeshCore <strong>Companion BLE</strong> device, for example the tested Heltec V3 or XIAO Wio. A repeater or USB-only build will not appear in the Bluetooth device picker. Close any MeshCore phone app currently connected to that radio.</p></article>
+<article class="setup-card"><div class="setup-card-head"><span class="setup-num">02</span><h3>Select the radio</h3></div><p>After boot, NodePad searches for Companions. On <strong>SELECT COMPANION</strong>, use <code>W</code> / <code>S</code> to highlight yours and <code>Enter</code> to select. The screen may connect automatically if a saved Companion is found.</p></article>
+<article class="setup-card"><div class="setup-card-head"><span class="setup-num">03</span><h3>Enter the BLE PIN</h3></div><p>On <strong>PAIRING PIN</strong>, type the six-digit PIN configured on that Companion, then press <code>Enter</code>. The prefilled value is only a suggestion, not a universal PIN. After a successful connection, NodePad remembers the PIN locally for that radio.</p></article>
+<article class="setup-card"><div class="setup-card-head"><span class="setup-num">04</span><h3>Start using NodePad</h3></div><p>Once paired and initialized, the main menu appears. Check for <strong>BLE SECURE</strong> and <strong>MESH ONLINE</strong> on screen, then explore public/private chats, nodes, adverts and repeater tools. Actual LoRa connectivity still depends on your network coverage.</p></article>
+</div>
+<div class="setup-help"><strong>Need help connecting?</strong><p>On <strong>SELECT COMPANION</strong>, press <code>R</code> to rescan. If your device is missing, confirm it runs Companion BLE firmware and is not already connected to another app. To switch radios later, open <strong>System → Enter</strong>. For more, read <a href="https://github.com/AL83M/NodePad/blob/main/docs/TROUBLESHOOTING.md">Troubleshooting ↗</a>.</p></div>
 </section>
 </main>
 <footer><div class="wrap"><span>© NodePad · Independent community project · Beta software</span><span><a href="https://github.com/AL83M/NodePad">Source code</a> · <a href="https://github.com/AL83M/NodePad/issues">Report an issue</a></span></div></footer>

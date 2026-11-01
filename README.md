@@ -29,6 +29,15 @@ This is an independent community project, not an official MeshCore, M5Stack or S
 
 A standalone repeater or USB-only Companion is **not** interchangeable with a BLE Companion. NodePad itself does **not** transmit LoRa.
 
+## First connection (after installation)
+
+1. Power on a MeshCore **Companion BLE** radio (tested with Heltec V3 and XIAO Wio). Disconnect it from other BLE clients.
+2. On NodePad's **SELECT COMPANION** screen, use `W` / `S` to select the radio, then press `Enter`. The saved Companion may reconnect automatically.
+3. On **PAIRING PIN**, enter that radio's actual six-digit PIN, then press `Enter`.
+4. When the main menu reports **BLE SECURE / MESH ONLINE**, use the messaging and repeater features. Network reachability depends on LoRa conditions.
+
+Press `R` on the picker to rescan, or open **System → Enter** to choose a different radio later. See the [illustrated four-step website guide](https://al83m.github.io/NodePad/#setup).
+
 ## Download and build a .bin without Arduino IDE
 
 This repository includes an experimental GitHub Actions builder:
