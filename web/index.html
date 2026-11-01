@@ -40,6 +40,9 @@ h1 span { color:var(--blue); }
 .photo-live::before { content:""; display:inline-block; height:7px; width:7px; border-radius:50%; background:var(--green); }
 .tested { color:#c5dee9; font-size:14px; margin:0 0 23px; }
 .tested strong { color:#e9f7fd; font-weight:700; }
+.prereq { background:#102738; border:1px solid #3d718d; border-left:3px solid #49c8ff; border-radius:11px; padding:13px 17px; margin:4px 0 22px; color:#cbdfea; font-size:14px; line-height:1.55; }
+.prereq strong { color:#f0faff; }
+.prereq a { color:#88dfff; }
 .photo-gallery { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
 .gallery-card { margin:0; padding:10px; background:#0e2536; border:1px solid #284760; border-radius:18px; }
 .gallery-card a { display:block; border-radius:11px; overflow:hidden; }
@@ -96,6 +99,7 @@ footer a { color:#b7deed; }
 <h1>Your mesh.<br><span>Your terminal.</span></h1>
 <p class="lead">A pocket-sized, keyboard-first companion interface for MeshCore. Read messages, chat privately and explore repeaters — all from your original M5Stack Cardputer.</p>
 <p class="tested">✓ Field-tested with <strong>Heltec V3</strong> and <strong>XIAO Wio</strong> MeshCore BLE companions.</p>
+<p class="prereq"><strong>Companion setup required:</strong> Configure your radio first using the <strong>official MeshCore app</strong>. NodePad cannot configure the Companion yet; it connects to an already configured MeshCore BLE Companion.</p>
 <div class="tags"><span class="tag">v2.2.6 BETA</span><span class="tag">ESP32-S3</span><span class="tag">BLE Companion</span><span class="tag">NO WIFI REQUIRED IN USE</span></div>
 <div class="actions"><a href="#install" class="primary">Install NodePad ↓</a><a href="https://github.com/AL83M/NodePad" class="secondary">Browse source ↗</a></div>
 <p class="fine">Independent community project. Not affiliated with M5Stack or MeshCore.</p>
@@ -125,13 +129,14 @@ footer a { color:#b7deed; }
 <section id="install" class="wrap section">
 <div class="eyebrow">INSTALL IN YOUR BROWSER</div><h2>Connect. Flash. Explore.</h2>
 <p class="section-lead">No Arduino IDE needed for installation. Use a USB-C data cable and a desktop browser with Web Serial support (Google Chrome or Microsoft Edge recommended). Brave may work if Web Serial is enabled.</p>
+<div class="prereq" role="note"><strong>Before installing:</strong> NodePad flashes only the <strong>Cardputer</strong>. Your separate MeshCore BLE Companion must already be configured using the <strong>official MeshCore app</strong>. NodePad cannot configure its LoRa/network settings or firmware.</div>
 <div class="install">
 <div class="install-side">
 <div class="install-title">Before you begin</div>
 <ol class="steps">
 <li><span class="num">01</span><span>Use the <strong>original M5Stack Cardputer (ESP32-S3)</strong>. This build has not been validated for Cardputer ADV or other boards.</span></li>
 <li><span class="num">02</span><span>Connect the Cardputer using a <strong>USB-C data cable</strong>; close Arduino Serial Monitor and other tools using its port.</span></li>
-<li><span class="num">03</span><span>Keep your MeshCore <strong>Companion BLE radio</strong> available for pairing after the Cardputer reboots.</span></li>
+<li><span class="num">03</span><span>First configure your <strong>MeshCore Companion BLE</strong> using the official MeshCore app. Disconnect that app before pairing NodePad after the Cardputer reboots.</span></li>
 </ol>
 </div>
 <div class="install-side">
@@ -145,7 +150,7 @@ footer a { color:#b7deed; }
 </esp-web-install-button>
 </div>
 <p class="fine">The installer will ask permission to access your selected USB serial device.</p>
-<div class="warning"><strong>Beta firmware — read before flashing.</strong> Flash only on the original Cardputer. Back up your existing firmware and settings first: installation or flash erase may remove saved data. Do not unplug the cable while flashing. The web flash has not yet been verified on hardware.</div>
+<div class="warning"><strong>Beta firmware — read before flashing.</strong> Flash only on the original Cardputer. Back up your existing firmware and settings first: installation or flash erase may remove saved data. Do not unplug the cable while flashing. The author has successfully tested web installation on an original Cardputer; wider testing is still recommended.</div>
 <p class="fine"><a href="https://github.com/AL83M/NodePad/blob/main/docs/FLASHING.md">Full flashing instructions ↗</a></p>
 </div>
 </div>
@@ -153,9 +158,9 @@ footer a { color:#b7deed; }
 <section id="setup" class="wrap section" aria-labelledby="setup-heading">
 <div class="eyebrow">AFTER INSTALLATION</div>
 <h2 id="setup-heading">Pair NodePad with your MeshCore Companion.</h2>
-<p class="section-lead">NodePad uses Bluetooth Low Energy to talk to a <strong>separate MeshCore Companion BLE radio</strong>, which handles LoRa. The original Cardputer does not need to run the radio firmware itself. This flow is for NodePad v2.2.6 Beta.</p>
+<p class="section-lead">NodePad uses Bluetooth Low Energy to talk to a <strong>separate, already configured MeshCore Companion BLE radio</strong>, which handles LoRa. Configure that radio with the <strong>official MeshCore app</strong> first. NodePad currently does not configure Companion firmware, radio/network parameters or channels. This flow is for NodePad v2.2.6 Beta.</p>
 <div class="setup-grid">
-<article class="setup-card"><div class="setup-card-head"><span class="setup-num">01</span><h3>Turn on the Companion</h3></div><p>Power on your MeshCore <strong>Companion BLE</strong> device, for example the tested Heltec V3 or XIAO Wio. A repeater or USB-only build will not appear in the Bluetooth device picker. Close any MeshCore phone app currently connected to that radio.</p></article>
+<article class="setup-card"><div class="setup-card-head"><span class="setup-num">01</span><h3>Configure the Companion first</h3></div><p>Using the <strong>official MeshCore app</strong>, set up your Companion BLE radio and its required mesh/radio settings before using NodePad. Tested devices include Heltec V3 and XIAO Wio. Then disconnect the official app, leave the radio on and continue. Repeater or USB-only builds are not supported.</p></article>
 <article class="setup-card"><div class="setup-card-head"><span class="setup-num">02</span><h3>Select the radio</h3></div><p>After boot, NodePad searches for Companions. On <strong>SELECT COMPANION</strong>, use <code>W</code> / <code>S</code> to highlight yours and <code>Enter</code> to select. The screen may connect automatically if a saved Companion is found.</p></article>
 <article class="setup-card"><div class="setup-card-head"><span class="setup-num">03</span><h3>Enter the BLE PIN</h3></div><p>On <strong>PAIRING PIN</strong>, type the six-digit PIN configured on that Companion, then press <code>Enter</code>. The prefilled value is only a suggestion, not a universal PIN. After a successful connection, NodePad remembers the PIN locally for that radio.</p></article>
 <article class="setup-card"><div class="setup-card-head"><span class="setup-num">04</span><h3>Start using NodePad</h3></div><p>Once paired and initialized, the main menu appears. Check for <strong>BLE SECURE</strong> and <strong>MESH ONLINE</strong> on screen, then explore public/private chats, nodes, adverts and repeater tools. Actual LoRa connectivity still depends on your network coverage.</p></article>

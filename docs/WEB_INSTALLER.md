@@ -1,6 +1,8 @@
 # NodePad Web Installer
 
-The source for the official NodePad installation page is in `web/`. It is published by the **Deploy NodePad web installer** workflow as a GitHub Pages website.
+The source for the NodePad installation page is in `web/`. It is published by the **Deploy NodePad web installer** workflow as a GitHub Pages website.
+
+**Prerequisite:** First configure a separate **MeshCore Companion BLE** radio using the **official MeshCore app**. NodePad **cannot** configure that radio's firmware, LoRa/network settings or channels. The NodePad web installer only installs NodePad **on the original Cardputer**. Disconnect the official app from the radio before connecting with NodePad.
 
 ## Enable GitHub Pages
 
@@ -21,7 +23,7 @@ The website uses [ESP Web Tools](https://esphome.github.io/esp-web-tools/) via H
 
 These files are extracted from the merged firmware produced by the same compilation workflow. The job checks the merged image size, bootloader, partition table and app equality to reduce mismatch risk.
 
-**CAUTION:** This is a beta installer, and the browser-flashed result has not yet been tested on hardware. Only the original M5Stack Cardputer is supported. Users should back up settings and know that flashing or choosing erase can destroy existing data. No other ESP32-S3 models are supported simply because the tool recognizes their chip family.
+**CAUTION:** This is a beta installer. The author has successfully tested browser installation and subsequent MeshCore BLE connection on the original Cardputer, but wider testing is needed. Only the original M5Stack Cardputer is supported. Users should back up settings and know that flashing or choosing erase can destroy existing data. No other ESP32-S3 models are supported simply because the tool recognizes their chip family.
 
 The manifest sets `new_install_prompt_erase: true` so users can decide whether to erase on a new installation, but data preservation is never guaranteed.
 

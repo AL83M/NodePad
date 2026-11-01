@@ -4,9 +4,11 @@
 
 **Version:** v2.2.6 Beta — community-tested, wider validation welcome.
 
-**Web installer:** [Install NodePad on your original Cardputer](https://al83m.github.io/NodePad/) (GitHub Pages must be enabled; online flashing is still awaiting hardware validation). See [setup instructions](docs/WEB_INSTALLER.md).
+**Web installer:** [Install NodePad on your original Cardputer](https://al83m.github.io/NodePad/) — successfully tested on the original Cardputer by the author; broader testing is welcome. See [setup instructions](docs/WEB_INSTALLER.md).
 
 NodePad turns the original M5Stack Cardputer into a small, keyboard-driven **Bluetooth Low Energy interface for a separate MeshCore Companion** radio. The Companion handles LoRa; the Cardputer provides the keyboard, display and controls.
+
+**REQUIRED FIRST — Companion configuration:** Set up your separate **MeshCore Companion BLE** radio using the **official MeshCore app** before connecting NodePad. Configure the relevant radio/network settings and channels there. **NodePad v2.2.6 cannot configure the Companion**; it works as a client for an already configured radio. Disconnect the official app from the radio before connecting via NodePad.
 
 This is an independent community project, not an official MeshCore, M5Stack or Seeed Studio product.
 
@@ -31,7 +33,7 @@ A standalone repeater or USB-only Companion is **not** interchangeable with a BL
 
 ## First connection (after installation)
 
-1. Power on a MeshCore **Companion BLE** radio (tested with Heltec V3 and XIAO Wio). Disconnect it from other BLE clients.
+1. **First configure** a MeshCore **Companion BLE** radio using the official MeshCore app (tested with Heltec V3 and XIAO Wio), then disconnect the app and keep the radio powered on.
 2. On NodePad's **SELECT COMPANION** screen, use `W` / `S` to select the radio, then press `Enter`. The saved Companion may reconnect automatically.
 3. On **PAIRING PIN**, enter that radio's actual six-digit PIN, then press `Enter`.
 4. When the main menu reports **BLE SECURE / MESH ONLINE**, use the messaging and repeater features. Network reachability depends on LoRa conditions.
@@ -47,7 +49,7 @@ This repository includes an experimental GitHub Actions builder:
 3. Download the **NodePad-v2.2.6-binaries** artifact ZIP.
 4. Extract the firmware files; follow [FLASHING.md](docs/FLASHING.md) for addresses and warnings.
 
-**Build status:** the workflow and resulting binaries have not yet been independently validated on hardware. The source repository does not contain a prebuilt `.bin`; do not treat a successful compilation as proof of a safe or working flash.
+**Build status:** GitHub Actions compilation succeeds, and the author has tested installation from the web installer and connection to a MeshCore Companion BLE radio on the original Cardputer. Broader hardware testing is still needed. The repository does not store a prebuilt `.bin` in source control.
 
 ## Compile from source
 

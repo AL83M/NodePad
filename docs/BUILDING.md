@@ -6,7 +6,7 @@ NodePad is an Arduino sketch for the **original M5Stack Cardputer** (ESP32-S3).
 
 Run **Actions → Build NodePad firmware → Run workflow**. The GitHub runner installs Arduino CLI, ESP32 board definitions, M5Cardputer and NimBLE-Arduino, compiles the sketch, and uploads downloadable firmware binaries if successful.
 
-This workflow is experimental and its build outcome has not yet been verified. Inspect Actions errors if it fails.
+The GitHub Actions compile and web installation have succeeded in the author's tests on an original Cardputer; other hardware and dependency combinations still need validation. Inspect Actions errors if your build fails.
 
 ## Dependencies
 
@@ -23,7 +23,7 @@ The full original dependency lockfile is unavailable; some newer combinations ma
 2. Install the ESP32 board definitions and dependencies.
 3. Select a matching original Cardputer ESP32-S3 board configuration.
 4. Compile and upload with Arduino IDE or Arduino CLI.
-5. Use a separate MeshCore Companion BLE radio for the LoRa link.
+5. Configure a separate MeshCore **Companion BLE** radio first using the official MeshCore app; NodePad cannot configure that radio. Disconnect the official app before pairing NodePad.
 
 ## Settings
 
