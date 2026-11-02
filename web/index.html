@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#07131f">
-<meta name="description" content="NodePad is a compact off-grid MeshCore terminal for the original M5Stack Cardputer. Install v2.2.6 Beta directly from a supported desktop browser.">
+<meta name="description" content="NodePad MeshCore terminal for M5Stack Cardputer. Install v2.2.6 or v2.8 Beta from a supported desktop browser.">
 <meta property="og:title" content="NodePad — Your off-grid mesh terminal">
 <meta property="og:description" content="A real off-grid MeshCore interface for the original M5Stack Cardputer.">
 <meta property="og:image" content="https://al83m.github.io/NodePad/assets/nodepad-cardputer.webp">
@@ -99,8 +99,8 @@ footer a { color:#b7deed; }
 <h1>Your mesh.<br><span>Your terminal.</span></h1>
 <p class="lead">A pocket-sized, keyboard-first companion interface for MeshCore. Read messages, chat privately and explore repeaters — all from your original M5Stack Cardputer.</p>
 <p class="tested">✓ Field-tested with <strong>Heltec V3</strong> and <strong>XIAO Wio</strong> MeshCore BLE companions.</p>
-<p class="prereq"><strong>Companion setup required:</strong> Configure your radio first using the <strong>official MeshCore app</strong>. NodePad cannot configure the Companion yet; it connects to an already configured MeshCore BLE Companion.</p>
-<div class="tags"><span class="tag">v2.2.6 BETA</span><span class="tag">ESP32-S3</span><span class="tag">BLE Companion</span><span class="tag">NO WIFI REQUIRED IN USE</span></div>
+<p class="prereq"><strong>Companion setup required:</strong> Configure your radio first using the <strong>official MeshCore app</strong>. v2.2.6 requires configuration in the official MeshCore app. v2.8 Beta adds experimental local web radio settings for supported BLE Companion firmware.</p>
+<div class="tags"><span class="tag">v2.2.6 + v2.8 BETA</span><span class="tag">ESP32-S3</span><span class="tag">BLE Companion</span><span class="tag">NO WIFI REQUIRED IN USE</span></div>
 <div class="actions"><a href="#install" class="primary">Install NodePad ↓</a><a href="https://github.com/AL83M/NodePad" class="secondary">Browse source ↗</a></div>
 <p class="fine">Independent community project. Not affiliated with M5Stack or MeshCore.</p>
 </div>
@@ -129,7 +129,7 @@ footer a { color:#b7deed; }
 <section id="install" class="wrap section">
 <div class="eyebrow">INSTALL IN YOUR BROWSER</div><h2>Connect. Flash. Explore.</h2>
 <p class="section-lead">No Arduino IDE needed for installation. Use a USB-C data cable and a desktop browser with Web Serial support (Google Chrome or Microsoft Edge recommended). Brave may work if Web Serial is enabled.</p>
-<div class="prereq" role="note"><strong>Before installing:</strong> NodePad flashes only the <strong>Cardputer</strong>. Your separate MeshCore BLE Companion must already be configured using the <strong>official MeshCore app</strong>. NodePad cannot configure its LoRa/network settings or firmware.</div>
+<div class="prereq" role="note"><strong>Before installing:</strong> NodePad flashes only the <strong>Cardputer</strong>. Your separate MeshCore BLE Companion must already be configured using the <strong>official MeshCore app</strong>. For v2.2.6 configure radio/network settings through the official app; v2.8 Beta adds experimental configuration options but does not install Companion firmware.</div>
 <div class="install">
 <div class="install-side">
 <div class="install-title">Before you begin</div>
@@ -140,14 +140,28 @@ footer a { color:#b7deed; }
 </ol>
 </div>
 <div class="install-side">
-<div class="install-title">NodePad v2.2.6 Beta</div>
-<p style="color:var(--muted);margin-top:7px">Firmware for original M5Stack Cardputer · ESP32-S3</p>
+<div class="install-title">Choose your NodePad firmware</div>
+<p style="color:var(--muted);margin-top:7px">Original M5Stack Cardputer · ESP32-S3. ADV compatibility is not yet hardware-verified.</p>
+<div style="border:1px solid #42657c;border-radius:13px;padding:17px;margin-top:17px">
+<strong>NodePad v2.2.6 — Previous tested version</strong>
+<p style="color:var(--muted);font-size:13px">Original BLE Companion terminal. This installer remains unchanged.</p>
 <div class="webtool">
 <esp-web-install-button manifest="./manifest.json">
-<button class="installbtn" slot="activate">Install NodePad via USB</button>
-<span slot="unsupported" class="unsupported">Web Serial is not supported by this browser. Open the page on desktop Chrome or Edge.</span>
-<span slot="not-allowed" class="unsupported">A secure HTTPS connection is required for USB flashing.</span>
-</esp-web-install-button>
+<button class="installbtn" slot="activate">Install v2.2.6</button>
+<span slot="unsupported" class="unsupported">Please use desktop Chrome or Edge with Web Serial.</span>
+<span slot="not-allowed" class="unsupported">HTTPS is required.</span>
+</esp-web-install-button></div>
+</div>
+<div style="border:1px solid #358caa;border-radius:13px;padding:17px;margin-top:16px">
+<strong>NodePad v2.8 Beta 1 — Public testing</strong>
+<p style="color:var(--muted);font-size:13px">New local Wi-Fi configuration for MeshCore BLE Companion, region settings and Credits. Original Cardputer tested by author; ADV testing wanted.</p>
+<div class="webtool">
+<esp-web-install-button manifest="./manifest-beta.json">
+<button class="installbtn" slot="activate">Install v2.8 Beta</button>
+<span slot="unsupported" class="unsupported">Please use desktop Chrome or Edge with Web Serial.</span>
+<span slot="not-allowed" class="unsupported">HTTPS is required.</span>
+</esp-web-install-button></div>
+<p class="fine"><a href="https://github.com/AL83M/NodePad/releases/tag/v2.8.0-beta.1" target="_blank" rel="noopener noreferrer">Beta release and manual download ↗</a></p>
 </div>
 <p class="fine">The installer will ask permission to access your selected USB serial device.</p>
 <div class="warning"><strong>Beta firmware — read before flashing.</strong> Flash only on the original Cardputer. Back up your existing firmware and settings first: installation or flash erase may remove saved data. Do not unplug the cable while flashing. The author has successfully tested web installation on an original Cardputer; wider testing is still recommended.</div>
@@ -158,7 +172,7 @@ footer a { color:#b7deed; }
 <section id="setup" class="wrap section" aria-labelledby="setup-heading">
 <div class="eyebrow">AFTER INSTALLATION</div>
 <h2 id="setup-heading">Pair NodePad with your MeshCore Companion.</h2>
-<p class="section-lead">NodePad uses Bluetooth Low Energy to talk to a <strong>separate, already configured MeshCore Companion BLE radio</strong>, which handles LoRa. Configure that radio with the <strong>official MeshCore app</strong> first. NodePad currently does not configure Companion firmware, radio/network parameters or channels. This flow is for NodePad v2.2.6 Beta.</p>
+<p class="section-lead">NodePad uses Bluetooth Low Energy to talk to a <strong>separate, already configured MeshCore Companion BLE radio</strong>, which handles LoRa. Configure that radio with the <strong>official MeshCore app</strong> first. NodePad does not install Companion firmware; v2.8 Beta provides experimental radio settings via the local Wi-Fi portal. v2.8 Beta also provides experimental configuration through System → P after BLE pairing.</p>
 <div class="setup-grid">
 <article class="setup-card"><div class="setup-card-head"><span class="setup-num">01</span><h3>Configure the Companion first</h3></div><p>Using the <strong>official MeshCore app</strong>, set up your Companion BLE radio and its required mesh/radio settings before using NodePad. Tested devices include Heltec V3 and XIAO Wio. Then disconnect the official app, leave the radio on and continue. Repeater or USB-only builds are not supported.</p></article>
 <article class="setup-card"><div class="setup-card-head"><span class="setup-num">02</span><h3>Select the radio</h3></div><p>After boot, NodePad searches for Companions. On <strong>SELECT COMPANION</strong>, use <code>W</code> / <code>S</code> to highlight yours and <code>Enter</code> to select. The screen may connect automatically if a saved Companion is found.</p></article>
