@@ -793,7 +793,8 @@ void radioStatusHttp() {
   j+=(meshOnline && bleConnected ? "true" : "false");
   j+=",\"name\":\""+jsonSafe(String(meshNodeName))+"\"";
   j+=",\"region\":\""+jsonSafe(String(radioRegionName))+"\"";
-  j+=",\"regionKnown\":"+(regionKnown ? "true" : "false");
+  j+=",\"regionKnown\":";
+  j+=(regionKnown ? "true" : "false");
   j+=",\"freq\":"+String(radioFreqMHz,3);
   j+=",\"bw\":"+String(radioBwKHz,3);
   j+=",\"sf\":"+String(radioSF)+",\"cr\":"+String(radioCR);
