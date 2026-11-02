@@ -4,6 +4,8 @@
 
 **Version:** v2.2.6 Beta — community-tested, wider validation welcome.
 
+**New: NodePad v2.8 public testing candidate.** The author reports successful installation on the original Cardputer. Web-based BLE Companion configuration and Credits are included; Cardputer ADV remains unverified. See the [v2.8 Beta download and test instructions](docs/BETA_2_8.md). The main web installer continues to offer v2.2.6 until a separate update is validated.
+
 **Web installer:** [Install NodePad on your original Cardputer](https://al83m.github.io/NodePad/) — successfully tested on the original Cardputer by the author; broader testing is welcome. See [setup instructions](docs/WEB_INSTALLER.md).
 
 NodePad turns the original M5Stack Cardputer into a small, keyboard-driven **Bluetooth Low Energy interface for a separate MeshCore Companion** radio. The Companion handles LoRa; the Cardputer provides the keyboard, display and controls.
