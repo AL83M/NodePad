@@ -66,6 +66,25 @@ jobs:
               (dest/name).write_bytes(image[start:end])
               print(f"{name}: {end-start} bytes")
           PY
+          # Fetch the fixed public beta release and split the tested merged image.
+          curl -fL --retry 3 --output /tmp/nodepad-beta.bin \
+            "https://github.com/AL83M/NodePad/releases/download/v2.8.0-beta.1/NodePad_v2.8_beta_factory_0x0000.bin"
+          echo "fa51b362ce0c83354bb289dc3d23e8b761f98d8405dc87c362cb6e1e1e7e8c93  /tmp/nodepad-beta.bin" | sha256sum -c -
+          python3 - <<'PYBETA'
+          from pathlib import Path
+          image=Path("/tmp/nodepad-beta.bin").read_bytes()
+          assert len(image)==8*1024*1024, "Unexpected beta image size"
+          assert image[0]==0xE9 and image[0x8000:0x8002]==b'\\xAA\\x50' and image[0x10000]==0xE9, "Invalid beta image"
+          dest=Path("site/firmware")
+          blocks=[
+            ("NodePad_v2.8_beta_bootloader_0x0000.bin", 0, 0x8000),
+            ("NodePad_v2.8_beta_partitions_0x8000.bin", 0x8000, 0x9000),
+            ("NodePad_v2.8_beta_boot_app0_0xE000.bin", 0xE000, 0x10000),
+            ("NodePad_v2.8_beta_app_0x10000.bin", 0x10000, 0x10000+1420688)
+          ]
+          for name,start,end in blocks:
+            (dest/name).write_bytes(image[start:end])
+          PYBETA
           touch site/.nojekyll
           find site -type f -maxdepth 2 -printf '%p %s bytes\n'
       - name: Configure GitHub Pages
