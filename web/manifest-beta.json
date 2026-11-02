@@ -1,0 +1,29 @@
+{
+  "name": "NodePad v2.8 Beta 1",
+  "version": "2.8.0-beta.1",
+  "new_install_prompt_erase": true,
+  "builds": [
+    {
+      "chipFamily": "ESP32-S3",
+      "improv": false,
+      "parts": [
+        {
+          "path": "./firmware/NodePad_v2.8_beta_bootloader_0x0000.bin",
+          "offset": 0
+        },
+        {
+          "path": "./firmware/NodePad_v2.8_beta_partitions_0x8000.bin",
+          "offset": 32768
+        },
+        {
+          "path": "./firmware/NodePad_v2.8_beta_boot_app0_0xE000.bin",
+          "offset": 57344
+        },
+        {
+          "path": "./firmware/NodePad_v2.8_beta_app_0x10000.bin",
+          "offset": 65536
+        }
+      ]
+    }
+  ]
+}
