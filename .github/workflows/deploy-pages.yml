@@ -72,18 +72,35 @@ jobs:
           echo "fa51b362ce0c83354bb289dc3d23e8b761f98d8405dc87c362cb6e1e1e7e8c93  /tmp/nodepad-beta.bin" | sha256sum -c -
           python3 - <<'PYBETA'
           from pathlib import Path
+          import struct, hashlib
           image=Path("/tmp/nodepad-beta.bin").read_bytes()
           assert len(image)==8*1024*1024, "Unexpected beta image size"
           assert image[0]==0xE9 and image[0x8000:0x8002]==bytes([0xAA,0x50]) and image[0x10000]==0xE9, "Invalid beta image"
+          # Determine the exact ESP32-S3 application image length from its segment headers.
+          app_start=0x10000
+          seg_count=image[app_start+1]
+          assert 1<=seg_count<=16, "Unexpected ESP image segment count"
+          cursor=app_start+24
+          for _ in range(seg_count):
+            _,seg_size=struct.unpack_from("<II",image,cursor)
+            cursor+=8+seg_size
+            assert cursor<len(image), "Segment exceeds factory image"
+          # The checksum is padded to a 16-byte boundary; ESP32 appends an optional SHA256.
+          app_end=((cursor+1+15)//16)*16
+          if image[app_start+23]==1:
+            app_end+=32
+            assert hashlib.sha256(image[app_start:app_end-32]).digest()==image[app_end-32:app_end], "Invalid application SHA256"
+          assert app_end<len(image) and 0x10000 < app_end < 0x400000, "Invalid application image length"
           dest=Path("site/firmware")
           blocks=[
             ("NodePad_v2.8_beta_bootloader_0x0000.bin", 0, 0x8000),
             ("NodePad_v2.8_beta_partitions_0x8000.bin", 0x8000, 0x9000),
             ("NodePad_v2.8_beta_boot_app0_0xE000.bin", 0xE000, 0x10000),
-            ("NodePad_v2.8_beta_app_0x10000.bin", 0x10000, 0x10000+1420688)
+            ("NodePad_v2.8_beta_app_0x10000.bin", 0x10000, app_end)
           ]
           for name,start,end in blocks:
             (dest/name).write_bytes(image[start:end])
+            print(f"{name}: {end-start} bytes")
           PYBETA
           touch site/.nojekyll
           find site -type f -maxdepth 2 -printf '%p %s bytes\n'
