@@ -74,7 +74,7 @@ jobs:
           from pathlib import Path
           image=Path("/tmp/nodepad-beta.bin").read_bytes()
           assert len(image)==8*1024*1024, "Unexpected beta image size"
-          assert image[0]==0xE9 and image[0x8000:0x8002]==b'\\xAA\\x50' and image[0x10000]==0xE9, "Invalid beta image"
+          assert image[0]==0xE9 and image[0x8000:0x8002]==bytes([0xAA,0x50]) and image[0x10000]==0xE9, "Invalid beta image"
           dest=Path("site/firmware")
           blocks=[
             ("NodePad_v2.8_beta_bootloader_0x0000.bin", 0, 0x8000),
