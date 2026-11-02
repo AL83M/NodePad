@@ -41,6 +41,7 @@
 #include <WebServer.h>
 #include <math.h>
 #include <ctype.h>
+#include <mbedtls/sha256.h>
 
 // ============================================================
 // USER CONFIG
@@ -51,7 +52,7 @@
 static const uint32_t DEFAULT_MESHCORE_BLE_PIN = 123456;
 static const uint8_t SOFT_NOTIFICATION_VOLUME = 12; // M5Unified volume scale: 0..255
 static const char* APP_NAME = "NodePad";
-static const char* APP_VERSION = "V2.8 BETA";
+static const char* APP_VERSION = "V2.8.1 BETA";
 
 // MeshCore device time is UTC.
 // October in Italy is UTC+2; change this to 1 during standard time.
@@ -75,6 +76,10 @@ static const uint8_t CMD_SEND_CHANNEL_MSG        = 0x03;
 static const uint8_t CMD_GET_CONTACTS            = 0x04;
 static const uint8_t CMD_GET_DEVICE_TIME         = 0x05;
 static const uint8_t CMD_SEND_SELF_ADVERT        = 0x07;
+static const uint8_t CMD_SET_ADVERT_NAME          = 0x08;
+static const uint8_t CMD_SET_DEFAULT_FLOOD_SCOPE  = 0x3F;
+static const uint8_t CMD_GET_DEFAULT_FLOOD_SCOPE  = 0x40;
+static const uint8_t RESP_DEFAULT_FLOOD_SCOPE     = 0x1C;
 static const uint8_t CMD_SYNC_NEXT_MESSAGE       = 0x0A;
 static const uint8_t CMD_SEND_PATH_DISCOVERY_REQ = 52;
 static const uint8_t CMD_SEND_CONTROL_DATA        = 55;
@@ -224,6 +229,15 @@ uint8_t radioCR = 0;
 WebServer radioWeb(80);
 bool webActive = false;
 String webSsid, webPassword, webToken;
+char radioRegionName[32] = "";
+bool regionKnown = false;
+bool regionQueryPending = false;
+bool regionQueryAwaiting = false;
+uint32_t regionQueryAt = 0;
+enum SaveKind { SAVE_RADIO, SAVE_NAME, SAVE_REGION };
+SaveKind saveKind = SAVE_RADIO;
+char nextName[32] = "";
+char nextRegion[31] = "";
 enum SaveStage { SAVE_IDLE, SAVE_QUEUED, SAVE_WAIT_ACK, SAVE_OK, SAVE_ERR, SAVE_TIMEOUT };
 SaveStage saveStage = SAVE_IDLE;
 volatile int8_t saveAck = 0;
@@ -680,6 +694,9 @@ class MeshClientCallbacks : public NimBLEClientCallbacks {
     privateAckWaiting = false;
     repeaterScanning = false;
     repeaterScanRequested = false;
+    regionKnown = false;
+    regionQueryAwaiting = false;
+    regionQueryPending = webActive;
     notificationsArmed = false;
     notificationBeepRequested = false;
 
@@ -775,6 +792,8 @@ void radioStatusHttp() {
   String j="{\"online\":";
   j+=(meshOnline && bleConnected ? "true" : "false");
   j+=",\"name\":\""+jsonSafe(String(meshNodeName))+"\"";
+  j+=",\"region\":\""+jsonSafe(String(radioRegionName))+"\"";
+  j+=",\"regionKnown\":"+(regionKnown ? "true" : "false");
   j+=",\"freq\":"+String(radioFreqMHz,3);
   j+=",\"bw\":"+String(radioBwKHz,3);
   j+=",\"sf\":"+String(radioSF)+",\"cr\":"+String(radioCR);
@@ -811,10 +830,80 @@ void radioApplyHttp() {
     sendJson(422,"{\"error\":\"Invalid radio parameters\"}"); return;
   }
   nextFrequency=f; nextBandwidth=b; nextSf=sf; nextCr=cr;
+  saveKind=SAVE_RADIO;
   saveAck=0; saveStage=SAVE_QUEUED;
   snprintf(saveDetail,sizeof(saveDetail),"Queued for BLE Companion");
   sendJson(202,"{\"state\":\"queued\"}");
   uiDirty=true;
+}
+
+bool configWriteAllowed() {
+  return bleConnected && meshOnline && protocolStage==PROTO_READY &&
+         saveStage!=SAVE_QUEUED && saveStage!=SAVE_WAIT_ACK &&
+         !regionQueryAwaiting && !userCommandBusy() &&
+         !messagePollInFlight && !pingPending && !advertPending &&
+         !repeaterScanning;
+}
+bool checkConfigToken() {
+  if(!webActive || !radioWeb.hasArg("token") ||
+     radioWeb.arg("token")!=webToken) {
+    sendJson(403,"{\"error\":\"Invalid token\"}");
+    return false;
+  }
+  if(!configWriteAllowed()) {
+    sendJson(409,"{\"error\":\"Companion offline or busy - try again\"}");
+    return false;
+  }
+  return true;
+}
+// Only plain UTF-8 ASCII names, so byte limits match MeshCore frame limits.
+bool validNodeName(const String& s) {
+  if(s.length()<1 || s.length()>31 || s[0]==' ' || s[s.length()-1]==' ') return false;
+  for(unsigned i=0;i<s.length();i++) {
+    const char ch=s[i];
+    if(!((ch>='a'&&ch<='z')||(ch>='A'&&ch<='Z')||
+         (ch>='0'&&ch<='9')||ch==' '||ch=='_'||ch=='-'||ch=='.')) return false;
+  }
+  return true;
+}
+bool validRegionName(const String& s) {
+  if(s.length()>30) return false; // Empty means clear/default unscoped.
+  for(unsigned i=0;i<s.length();i++) {
+    const char ch=s[i];
+    if(!((ch>='a'&&ch<='z')||(ch>='A'&&ch<='Z')||
+         (ch>='0'&&ch<='9')||ch=='_'||ch=='-')) return false;
+  }
+  return true;
+}
+void nameApplyHttp() {
+  if(!checkConfigToken()) return;
+  if(!radioWeb.hasArg("node_name") || !radioWeb.hasArg("confirmed") ||
+     radioWeb.arg("confirmed")!="yes") {
+    sendJson(400,"{\"error\":\"Missing name or confirmation\"}"); return;
+  }
+  String s=radioWeb.arg("node_name"); s.trim();
+  if(!validNodeName(s)) {
+    sendJson(422,"{\"error\":\"Use 1-31 letters, digits, spaces, dot, - or _\"}"); return;
+  }
+  s.toCharArray(nextName,sizeof(nextName));
+  saveKind=SAVE_NAME; saveAck=0; saveStage=SAVE_QUEUED;
+  snprintf(saveDetail,sizeof(saveDetail),"Name update queued");
+  sendJson(202,"{\"state\":\"queued\"}");
+}
+void regionApplyHttp() {
+  if(!checkConfigToken()) return;
+  if(!radioWeb.hasArg("region") || !radioWeb.hasArg("confirmed") ||
+     radioWeb.arg("confirmed")!="yes") {
+    sendJson(400,"{\"error\":\"Missing scope or confirmation\"}"); return;
+  }
+  String s=radioWeb.arg("region"); s.trim();
+  if(!validRegionName(s)) {
+    sendJson(422,"{\"error\":\"Use 0-30 letters, digits, - or _\"}"); return;
+  }
+  s.toCharArray(nextRegion,sizeof(nextRegion));
+  saveKind=SAVE_REGION; saveAck=0; saveStage=SAVE_QUEUED;
+  snprintf(saveDetail,sizeof(saveDetail),"Region scope queued");
+  sendJson(202,"{\"state\":\"queued\"}");
 }
 
 const char setupHtml[] PROGMEM = R"NODEPAGE(
@@ -834,6 +923,21 @@ button:disabled{opacity:.4}.row{display:grid;grid-template-columns:1fr 1fr;gap:1
 </style></head><body><p>NODEPAD / V2.8 BETA</p><h1>Radio Settings</h1>
 <p>The Cardputer hosts this page locally and configures your MeshCore Companion over BLE.</p>
 <section><b id="online">Connecting...</b><p id="current"></p><p id="status"></p></section>
+<section><h2>Companion Name</h2><form id="nameForm">
+<label>Advertised node name
+<input name="node_name" id="node_name" maxlength="31" pattern="[A-Za-z0-9 _.-]{1,31}" required></label>
+<p>This changes the name announced by your connected MeshCore Companion.</p>
+<button id="nameSave" disabled>Save Name</button></form></section>
+<section><h2>Default Region Scope</h2><form id="regionForm">
+<p>This is a MeshCore flood scope, NOT a LoRa frequency band.
+Use exactly the region name accepted by your repeaters.</p>
+<label>Region (e.g. your mesh's region code)
+<input name="region" id="region" maxlength="30" pattern="[A-Za-z0-9_-]{0,30}" placeholder="Leave empty to clear"></label>
+<p id="regionCurrent">Current region: reading...</p>
+<label><input type="checkbox" id="regionConfirm" required>
+I checked this scope with my mesh. Wrong scopes can prevent messages reaching repeaters.
+An empty value removes the default scope.</label>
+<button id="regionSave" disabled>Save Default Region</button></form></section>
 <section><h2>LoRa Parameters</h2><form id="form">
 <label>Frequency (MHz)<input name="frequency" id="frequency" type="number" min="300" max="2500" step=".001" required></label>
 <div class="row"><label>Bandwidth (kHz)<select name="bandwidth" id="bandwidth">
@@ -852,7 +956,7 @@ I checked that my region, hardware and MeshCore network allow these values.</lab
 Reboot the Companion if required. Unsupported settings can interrupt mesh connectivity.</p>
 <p><a href="/credits">Credits</a></p>
 <script>
-var token="__TOKEN__",initialized=false;
+var token="__TOKEN__",initialized=false,nameInitialized=false,regionInitialized=false;
 var $=id=>document.getElementById(id);
 async function refresh(){
  try{
@@ -860,12 +964,18 @@ async function refresh(){
   $("online").textContent=d.online?"BLE connected: "+d.name:"Companion offline";
   $("current").textContent="Current: "+d.freq+" MHz · "+d.bw+" kHz · SF"+d.sf+" CR"+d.cr;
   $("status").textContent=d.detail+" ("+d.state+")";
+  $("regionCurrent").textContent=d.regionKnown?"Current region: "+(d.region||"unscoped"):"Current region: not available (older firmware?)";
+  if(d.online&&!nameInitialized){$("node_name").value=d.name;nameInitialized=true;}
+  if(d.online&&d.regionKnown&&!regionInitialized){$("region").value=d.region;regionInitialized=true;}
   if(!initialized&&d.online&&d.freq>0){
    $("frequency").value=d.freq;$("bandwidth").value=String(d.bw);
    $("sf").value=String(d.sf);$("cr").value=String(d.cr);initialized=true;
   }
-  $("save").disabled=!d.online || d.state==="waiting" || d.state==="queued";
- }catch(e){$("online").textContent="Cardputer unavailable";$("save").disabled=true}
+  var busy=!d.online || d.state==="waiting" || d.state==="queued";
+  $("save").disabled=busy;$("nameSave").disabled=busy;
+  $("regionSave").disabled=busy;
+ }catch(e){$("online").textContent="Cardputer unavailable";
+ $("save").disabled=true;$("nameSave").disabled=true;$("regionSave").disabled=true}
 }
 $("form").addEventListener("submit",async e=>{
  e.preventDefault();$("save").disabled=true;
@@ -876,6 +986,21 @@ $("form").addEventListener("submit",async e=>{
  catch(e){alert("Wi-Fi connection lost")}
  await refresh();
 });
+function bindForm(formId,endpoint){
+ $(formId).addEventListener("submit",async e=>{
+  e.preventDefault();
+  var p=new URLSearchParams(new FormData($(formId)));
+  p.append("confirmed","yes");p.append("token",token);
+  try{
+   var r=await fetch(endpoint,{method:"POST",body:p}),d=await r.json();
+   if(!r.ok)alert(d.error||"Settings rejected");
+   else if(formId==="regionForm")$("regionConfirm").checked=false;
+  }catch(e){alert("Wi-Fi connection lost")}
+  await refresh();
+ });
+}
+bindForm("nameForm","/api/name");
+bindForm("regionForm","/api/region");
 refresh();setInterval(refresh,1500);
 </script></body></html>
 )NODEPAGE";
@@ -907,6 +1032,8 @@ void configureRadioWeb() {
   });
   radioWeb.on("/api/status", HTTP_GET, radioStatusHttp);
   radioWeb.on("/api/radio", HTTP_POST, radioApplyHttp);
+  radioWeb.on("/api/name", HTTP_POST, nameApplyHttp);
+  radioWeb.on("/api/region", HTTP_POST, regionApplyHttp);
   radioWeb.onNotFound([](){radioWeb.send(404,"text/plain","Not found");});
 }
 void stopSetupAccessPoint() {
@@ -931,7 +1058,9 @@ bool startSetupAccessPoint() {
   if(!WiFi.softAP(webSsid.c_str(),webPassword.c_str(),1,false,2)) {
     WiFi.mode(WIFI_OFF);return false;
   }
-  radioWeb.begin();webActive=true;uiDirty=true;return true;
+  radioWeb.begin();webActive=true;
+  regionKnown=false;regionQueryPending=true;regionQueryAwaiting=false;
+  uiDirty=true;return true;
 }
 // Stop other MeshCore commands while a settings command awaits an ACK.
 // BLE callbacks only set saveAck; the loop owns all other state changes.
@@ -940,16 +1069,25 @@ bool serviceRadioSettings() {
     if(saveAck!=0) {
       if(saveAck==1) {
         saveStage=SAVE_OK;
-        radioFreqMHz=nextFrequency;radioBwKHz=nextBandwidth;
-        radioSF=nextSf;radioCR=nextCr;
-        snprintf(saveDetail,sizeof(saveDetail),"Saved - reboot Companion if needed");
+        if(saveKind==SAVE_RADIO) {
+          radioFreqMHz=nextFrequency;radioBwKHz=nextBandwidth;
+          radioSF=nextSf;radioCR=nextCr;
+          snprintf(saveDetail,sizeof(saveDetail),"Radio saved - restart Companion if needed");
+        } else if(saveKind==SAVE_NAME) {
+          snprintf(meshNodeName,sizeof(meshNodeName),"%s",nextName);
+          snprintf(saveDetail,sizeof(saveDetail),"Node name saved to Companion");
+        } else if(saveKind==SAVE_REGION) {
+          snprintf(radioRegionName,sizeof(radioRegionName),"%s",nextRegion);
+          regionKnown=true;
+          snprintf(saveDetail,sizeof(saveDetail),"Default region saved to Companion");
+        }
       } else {
         saveStage=SAVE_ERR;
-        snprintf(saveDetail,sizeof(saveDetail),"Companion rejected radio settings");
+        snprintf(saveDetail,sizeof(saveDetail),"Companion rejected setting or firmware too old");
       }
       saveAck=0;uiDirty=true;return false;
     }
-    if(millis()-saveStart>9000){
+    if(millis()-saveStart>9000) {
       saveStage=SAVE_TIMEOUT;
       snprintf(saveDetail,sizeof(saveDetail),"ACK timeout - verify before retry");
       uiDirty=true;return false;
@@ -958,22 +1096,50 @@ bool serviceRadioSettings() {
   }
   if(saveStage!=SAVE_QUEUED)return false;
   if(protocolStage!=PROTO_READY || userCommandBusy() || messagePollInFlight ||
-     pingPending || advertPending || repeaterScanning)return false;
-  uint32_t frequency=(uint32_t)lroundf(nextFrequency*1000.0f);
-  uint32_t bandwidth=(uint32_t)lroundf(nextBandwidth*1000.0f);
-  uint8_t frame[11]={11};
-  for(int i=0;i<4;i++){
-    frame[1+i]=(frequency>>(8*i))&0xFF;
-    frame[5+i]=(bandwidth>>(8*i))&0xFF;
+     regionQueryAwaiting || pingPending || advertPending || repeaterScanning)return false;
+
+  uint8_t frame[48]={0};
+  size_t frameLen=0;
+  if(saveKind==SAVE_NAME) {
+    frame[0]=CMD_SET_ADVERT_NAME;
+    size_t n=strlen(nextName);
+    memcpy(&frame[1],nextName,n);
+    frameLen=1+n;
+  } else if(saveKind==SAVE_REGION) {
+    frame[0]=CMD_SET_DEFAULT_FLOOD_SCOPE;
+    frameLen=1; // Empty region resets default scope.
+    if(nextRegion[0]!='\0') {
+      // MeshCore public region keys are SHA-256("#" + region_name)[:16].
+      String scopedName="#"+String(nextRegion);
+      uint8_t hash[32]={0};
+      if(mbedtls_sha256((const unsigned char*)scopedName.c_str(),
+                        scopedName.length(),hash,0)!=0) {
+        saveStage=SAVE_ERR;
+        snprintf(saveDetail,sizeof(saveDetail),"Region SHA-256 failed");
+        return false;
+      }
+      memcpy(&frame[1],nextRegion,strlen(nextRegion)); // 31-byte zero-padded field.
+      memcpy(&frame[32],hash,16);
+      frameLen=48;
+    }
+  } else {
+    uint32_t frequency=(uint32_t)lroundf(nextFrequency*1000.0f);
+    uint32_t bandwidth=(uint32_t)lroundf(nextBandwidth*1000.0f);
+    frame[0]=11;
+    for(int i=0;i<4;i++) {
+      frame[1+i]=(frequency>>(8*i))&0xFF;
+      frame[5+i]=(bandwidth>>(8*i))&0xFF;
+    }
+    frame[9]=nextSf;frame[10]=nextCr;
+    frameLen=11;
   }
-  frame[9]=nextSf;frame[10]=nextCr;
   saveAck=0;saveStage=SAVE_WAIT_ACK;saveStart=millis();
-  if(!sendFrame(frame,sizeof(frame))){
+  if(!sendFrame(frame,frameLen)) {
     saveStage=SAVE_ERR;
     snprintf(saveDetail,sizeof(saveDetail),"BLE write failed");
     return false;
   }
-  snprintf(saveDetail,sizeof(saveDetail),"Awaiting BLE response");
+  snprintf(saveDetail,sizeof(saveDetail),"Awaiting BLE acknowledgement");
   uiDirty=true;return true;
 }
 
@@ -1514,6 +1680,14 @@ void handleFrame(const uint8_t* data, size_t len) {
       parseSelfInfo(data, len);
       break;
 
+    case RESP_DEFAULT_FLOOD_SCOPE:
+      if(regionQueryAwaiting && (len==1 || len>=48)) {
+        if(len==1) radioRegionName[0]='\0';
+        else safeCopyText(radioRegionName,sizeof(radioRegionName),&data[1],31);
+        regionKnown=true;regionQueryAwaiting=false;uiDirty=true;
+      }
+      break;
+
     case RESP_SENT:
       if (pingPending && len >= 10) {
         // MeshCore sends an estimated timeout at bytes 6..9.
@@ -1686,6 +1860,20 @@ void requestContactsRefresh() {
 void serviceProtocol() {
   if (!bleConnected || !meshOnline) return;
   if (serviceRadioSettings()) return;
+  if(regionQueryAwaiting) {
+    if(millis()-regionQueryAt<3500) return; // No infinite BUSY if unsupported.
+    regionQueryAwaiting=false;
+  }
+  if(webActive && regionQueryPending && protocolStage==PROTO_READY &&
+     !userCommandBusy() && !messagePollInFlight && !pingPending &&
+     !advertPending && !repeaterScanning) {
+    uint8_t cmd[]={CMD_GET_DEFAULT_FLOOD_SCOPE};
+    if(sendFrame(cmd,sizeof(cmd))) {
+      regionQueryPending=false;regionQueryAwaiting=true;regionQueryAt=millis();
+      return;
+    }
+    regionQueryPending=false;
+  }
 
   // APP_START watchdog: if SELF_INFO never arrives, resend once every ~6 s.
   if (protocolStage == PROTO_WAIT_SELF) {
@@ -3375,7 +3563,7 @@ void setup() {
 
 void loop() {
   if(webActive)radioWeb.handleClient();
-  if(saveStage==SAVE_WAIT_ACK && (!bleConnected || !meshOnline)){
+  if((saveStage==SAVE_WAIT_ACK || saveStage==SAVE_QUEUED) && (!bleConnected || !meshOnline)){
     saveStage=SAVE_ERR;
     snprintf(saveDetail,sizeof(saveDetail),"Companion disconnected - verify settings");
   }
