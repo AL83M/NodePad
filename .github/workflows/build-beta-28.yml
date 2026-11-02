@@ -26,7 +26,8 @@ jobs:
           arduino-cli core update-index --additional-urls "$ESP32_INDEX"
           arduino-cli core install esp32:esp32@3.3.7 --additional-urls "$ESP32_INDEX"
           arduino-cli lib update-index
-          arduino-cli lib install "M5Cardputer@1.2.0" "NimBLE-Arduino@2.3.9"
+          arduino-cli lib install "M5Cardputer@1.1.1"
+          arduino-cli lib install "NimBLE-Arduino@2.3.9"
       - name: Build one ESP32-S3 image for Cardputer and ADV testing
         run: |
           set -euo pipefail
