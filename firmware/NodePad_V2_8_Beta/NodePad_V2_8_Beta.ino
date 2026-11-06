@@ -3520,7 +3520,8 @@ void setup() {
   M5Cardputer.begin(cfg, true);
   M5Cardputer.Speaker.setVolume(SOFT_NOTIFICATION_VOLUME);
 
-  LCD.setRotation(1);
+  // Original Cardputer: landscape orientation for the 240x135 UI.
+  LCD.setRotation(0);
   LCD.setBrightness(100);
 
   // 240x135 off-screen framebuffer. All existing graphics are drawn into
