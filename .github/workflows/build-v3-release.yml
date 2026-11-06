@@ -1,0 +1,45 @@
+name: Build NodePad v3.0 Stable
+
+on:
+  push:
+    branches: ["release/v3.0"]
+    paths:
+      - "firmware/NodePad_V2_8_Beta/**"
+      - ".github/workflows/build-v3-release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/setup-arduino-cli@v2
+      - name: Install ESP32 core and libraries
+        env:
+          ESP32_INDEX: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+        run: |
+          arduino-cli core update-index --additional-urls "$ESP32_INDEX"
+          arduino-cli core install esp32:esp32@3.3.7 --additional-urls "$ESP32_INDEX"
+          arduino-cli lib update-index
+          arduino-cli lib install "M5Cardputer@1.1.1"
+          arduino-cli lib install "NimBLE-Arduino@2.3.9"
+      - name: Compile original Cardputer
+        run: |
+          set -euo pipefail
+          arduino-cli compile --fqbn "esp32:esp32:m5stack_cardputer:CDCOnBoot=cdc,USBMode=hwcdc,FlashSize=8M,PartitionScheme=default_8MB" --output-dir build-v3 firmware/NodePad_V2_8_Beta
+      - name: Package binaries
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp build-v3/NodePad_V2_8_Beta.ino.bin dist/NodePad_v3_app_0x10000.bin
+          test -s build-v3/NodePad_V2_8_Beta.ino.merged.bin
+          cp build-v3/NodePad_V2_8_Beta.ino.merged.bin dist/NodePad_v3_factory_0x0000.bin
+          (cd dist && sha256sum *.bin > SHA256SUMS.txt)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NodePad-v3.0-Stable-Cardputer
+          path: dist/
+          if-no-files-found: error
