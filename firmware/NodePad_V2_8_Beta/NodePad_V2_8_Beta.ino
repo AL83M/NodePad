@@ -53,7 +53,7 @@ static const uint32_t DEFAULT_MESHCORE_BLE_PIN = 123456;
 static const uint8_t SOFT_NOTIFICATION_VOLUME = 12; // low, M5Unified scale 0..255
 static const uint8_t MEDIUM_NOTIFICATION_VOLUME = 40; // medium
 static const char* APP_NAME = "NodePad";
-static const char* APP_VERSION = "V3.0 DEV";
+static const char* APP_VERSION = "V3.0";
 
 // MeshCore device time is UTC.
 // October in Italy is UTC+2; change this to 1 during standard time.
@@ -926,7 +926,7 @@ font:inherit;border:1px solid #49658c;border-radius:8px;background:#0a1931;color
 button{background:#267eef;border:0;margin-top:24px;font-weight:bold}
 button:disabled{opacity:.4}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 #confirm{width:auto}a{color:#7fc0ff}
-</style></head><body><p>NODEPAD / V2.8 BETA</p><h1>Radio Settings</h1>
+</style></head><body><p>NODEPAD / V3.0</p><h1>Radio Settings</h1>
 <p>The Cardputer hosts this page locally and configures your MeshCore Companion over BLE.</p>
 <section><b id="online">Connecting...</b><p id="current"></p><p id="status"></p></section>
 <section><h2>Companion Name</h2><form id="nameForm">
