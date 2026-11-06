@@ -1,10 +1,115 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080d17"><meta name="description" content="NodePad v3 — open-source MeshCore client for M5Stack Cardputer. Install from your browser."><title>NodePad v3 — MeshCore in your pocket</title><script type="module" src="https://unpkg.com/esp-web-tools@10.1.1/dist/web/install-button.js"></script><style>
 :root{--bg:#080d17;--surface:#101827;--line:#25354a;--text:#f2f6ff;--muted:#a0aec3;--cyan:#55e0e9}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif}a{color:inherit;text-decoration:none}.wrap{width:min(1120px,calc(100% - 40px));margin:auto}.nav{display:flex;align-items:center;justify-content:space-between;padding:24px 0}.logo{font-size:24px;font-weight:800}.logo span{color:var(--cyan)}.links{display:flex;gap:24px;align-items:center;font-size:14px}.button{display:inline-flex;align-items:center;justify-content:center;background:var(--cyan);color:#07111c;border-radius:10px;padding:14px 21px;font-weight:750;border:0}.secondary{background:#17283b;color:white;border:1px solid #40556e}.hero{display:grid;grid-template-columns:1fr 1fr;gap:55px;align-items:center;padding:90px 0 100px}.eyebrow{font-size:12px;letter-spacing:2px;color:var(--cyan);font-weight:700}.hero h1{font-size:clamp(46px,6vw,80px);letter-spacing:-3px;line-height:1.06;margin:18px 0}.hero h1 em{color:var(--cyan);font-style:normal}.hero p,.intro{color:var(--muted);font-size:18px;line-height:1.7}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}.hero img{width:100%;border-radius:20px;border:1px solid #34465b;box-shadow:0 25px 70px #0009}.section{padding:80px 0;border-top:1px solid var(--line)}h2{font-size:clamp(32px,4vw,48px);letter-spacing:-1.5px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px}.feature,.panel{background:linear-gradient(145deg,#142136,#0c1522);border:1px solid var(--line);border-radius:16px;padding:26px}.feature h3{font-size:19px}.feature p{font-size:14px;line-height:1.6;color:var(--muted)}.feature small{color:var(--cyan)}.install{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}.steps{color:#d0d9e6;line-height:2.1}.panel{padding:34px}.panel p,.note{color:var(--muted);line-height:1.6}.note{font-size:13px}.status{color:#76e2b4;font-size:13px;font-weight:700}esp-web-install-button button{border:0;border-radius:10px;background:var(--cyan);color:#07111c;padding:16px 22px;font-size:16px;font-weight:750;cursor:pointer}.warning{border-left:3px solid #dfae68;padding-left:14px;color:#decba9;font-size:13px;margin-top:24px}.gallery{display:grid;grid-template-columns:1fr 1fr;gap:16px}.gallery img{width:100%;border-radius:14px;border:1px solid var(--line)}footer{padding:35px 0;color:#8da0b7;border-top:1px solid var(--line);font-size:13px}@media(max-width:780px){.hero,.install{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.hero{padding:50px 0}.links a:not(.button){display:none}}@media(max-width:520px){.grid,.gallery{grid-template-columns:1fr}.hero h1{letter-spacing:-2px}}
+
+/* NodePad complete feature reference */
+.guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:30px}
+.guide-card{background:linear-gradient(145deg,#142136,#0c1522);border:1px solid var(--line);border-radius:16px;padding:26px}
+.guide-card h3{font-size:20px;margin:0 0 14px}
+.guide-card p,.guide-card li{font-size:14px;line-height:1.7;color:var(--muted)}
+.guide-card ul,.guide-card ol{padding-left:20px;margin:8px 0}
+.guide-card li{margin:5px 0}
+.guide-card strong{color:var(--text)}
+.guide-card.wide{grid-column:1/-1}
+.guide-card code,.guide-card kbd{display:inline-block;background:#20384f;border:1px solid #426181;padding:2px 6px;border-radius:5px;color:#d6f6fc;font-size:12px;white-space:nowrap}
+.guide-keygrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 20px}
+.guide-keygrid p{margin:0}
+.guide-card a{color:var(--cyan);text-decoration:underline}
+.guide-note{border-left:3px solid #dfae68;padding-left:14px}
+@media(max-width:780px){.guide-grid{grid-template-columns:1fr}.guide-card.wide{grid-column:auto}}
+@media(max-width:520px){.guide-keygrid{grid-template-columns:1fr}}
 </style></head><body>
-<header class="wrap nav"><a href="#top" class="logo">NODE<span>PAD</span> <small style="font-size:12px;color:#a0aec3">v3</small></a><nav class="links"><a href="#features">Features</a><a href="#gallery">Gallery</a><a href="https://github.com/AL83M/NodePad">GitHub</a><a class="button" href="#install">Install</a></nav></header>
+<header class="wrap nav"><a href="#top" class="logo">NODE<span>PAD</span> <small style="font-size:12px;color:#a0aec3">v3</small></a><nav class="links"><a href="#features">Features</a><a href="#guide">Guide</a><a href="#gallery">Gallery</a><a href="https://github.com/AL83M/NodePad">GitHub</a><a class="button" href="#install">Install</a></nav></header>
 <main id="top"><section class="wrap hero"><div><div class="eyebrow">OPEN SOURCE / MESHCORE / M5STACK</div><h1>Your mesh.<br><em>Your pocket.</em></h1><p>Meet NodePad v3. A compact MeshCore companion interface for the original M5Stack Cardputer. Connect, message and explore your mesh network.</p><div class="actions"><a class="button" href="#install">Install NodePad v3</a><a class="button secondary" href="https://github.com/AL83M/NodePad/releases">Download firmware</a></div><p class="note">Original Cardputer tested · ADV compatibility not yet verified</p></div><img src="./assets/nodepad-cardputer.webp" alt="M5Stack Cardputer running NodePad"></section>
 <section class="section" id="features"><div class="wrap"><div class="eyebrow">01 / CAPABILITIES</div><h2>Built for MeshCore.</h2><p class="intro">NodePad turns the Cardputer into a keyboard-driven BLE interface for a separate MeshCore Companion radio. The radio handles LoRa communication.</p><div class="grid"><article class="feature"><small>01 / CONNECT</small><h3>BLE Companion</h3><p>Discover, pair and reconnect to your MeshCore Companion radio.</p></article><article class="feature"><small>02 / MESSAGE</small><h3>Public & private chat</h3><p>Communicate through channels and direct conversations.</p></article><article class="feature"><small>03 / EXPLORE</small><h3>Network tools</h3><p>Advertisements, pings and live repeater information.</p></article><article class="feature"><small>04 / CONFIGURE</small><h3>Wi-Fi interface</h3><p>Configure supported Companion settings from NodePad's built-in web page.</p></article><article class="feature"><small>05 / AUDIO</small><h3>Notification levels</h3><p>Low, medium and muted notifications.</p></article><article class="feature"><small>06 / SYSTEM</small><h3>Essential controls</h3><p>Battery information and saved settings.</p></article></div></div></section>
+
+<section class="section" id="guide"><div class="wrap">
+<div class="eyebrow">02 / USER GUIDE</div>
+<h2>Every feature. Every shortcut.</h2>
+<p class="intro">A complete guide to NodePad v3.0.1 on the original M5Stack Cardputer. NodePad is the keyboard and screen; a separate, configured MeshCore BLE Companion provides the LoRa radio connection.</p>
+<div class="guide-grid">
+<article class="guide-card"><h3>01 / Bluetooth Companion</h3>
+<ul>
+<li><strong>Discover nearby radios:</strong> scan for compatible MeshCore Companion BLE devices. Use <kbd>R</kbd> on the device picker to scan again.</li>
+<li><strong>Select and pair:</strong> highlight your Companion with <kbd>W</kbd>/<kbd>S</kbd>, press <kbd>Enter</kbd>, enter its six-digit BLE PIN and confirm.</li>
+<li><strong>Reconnect:</strong> NodePad remembers the last radio and successfully paired PIN for future connection attempts.</li>
+<li><strong>Switch radios:</strong> from <strong>System</strong>, press <kbd>Enter</kbd> to reopen the BLE device picker.</li>
+</ul>
+<p>A separate Companion must run MeshCore <strong>Companion BLE</strong> firmware and be powered on. Disconnect other phone apps from it before pairing.</p>
+</article>
+<article class="guide-card"><h3>02 / Public &amp; private messages</h3>
+<ul>
+<li><strong>Chat:</strong> send and read messages on public channel 0. Type a message and press <kbd>Enter</kbd> to send; <kbd>Del</kbd> removes a character.</li>
+<li><strong>Private Chats:</strong> browse chat-capable contacts, open a conversation with <kbd>Enter</kbd> and exchange direct messages.</li>
+<li><strong>Message status:</strong> view the on-screen send/acknowledgement state; incoming direct messages can be marked <strong>NEW</strong>.</li>
+<li><strong>Refresh:</strong> press <kbd>R</kbd> in the private chat list to request the latest contacts.</li>
+</ul>
+</article>
+<article class="guide-card"><h3>03 / Nodes &amp; network contacts</h3>
+<ul>
+<li><strong>Nodes:</strong> list known MeshCore contacts and their type (such as chat or repeater).</li>
+<li><strong>Open a chat:</strong> select a chat-capable node and press <kbd>Enter</kbd> to start a private conversation.</li>
+<li><strong>Refresh contacts:</strong> press <kbd>R</kbd> in Nodes.</li>
+</ul>
+</article>
+<article class="guide-card"><h3>04 / Repeater tools</h3>
+<ul>
+<li><strong>Ping Repeaters:</strong> select a known repeater and press <kbd>Enter</kbd> to request MeshCore path discovery; <kbd>R</kbd> refreshes the contact list.</li>
+<li><strong>Live Repeaters:</strong> view recently heard repeaters; press <kbd>R</kbd> to run a fresh discovery and <kbd>Enter</kbd> to request a path check.</li>
+<li><strong>Link details:</strong> <strong>HEARD</strong> means recently received, while <strong>BIDIR</strong> indicates a recent two-way exchange. RX SNR, RSSI and TX SNR appear when available.</li>
+</ul>
+<p>Repeater pings are MeshCore radio path requests, not Internet or ICMP pings. Reception and results depend on RF coverage.</p>
+</article>
+<article class="guide-card"><h3>05 / Advertisements</h3>
+<ul>
+<li><strong>Zero-hop advert:</strong> announce your Companion to nearby radios without network flooding.</li>
+<li><strong>Flood advert:</strong> propagate a self-advertisement through the mesh, subject to network conditions.</li>
+<li>Choose the advert type with <kbd>W</kbd>/<kbd>S</kbd>, then press <kbd>Enter</kbd> to send and view the result.</li>
+</ul>
+</article>
+<article class="guide-card"><h3>06 / System, sound &amp; credits</h3>
+<ul>
+<li><strong>System screen:</strong> displays node name, radio frequency/SF/CR, BLE/mesh link status, contact/repeater counts and firmware version.</li>
+<li><strong>Battery:</strong> Cardputer battery information is shown in the interface.</li>
+<li><strong>Notification sound:</strong> press <kbd>M</kbd> in System to cycle <strong>Low → Medium → Mute</strong>; the chosen level is saved.</li>
+<li><strong>Credits:</strong> press <kbd>C</kbd> in System to view project acknowledgements.</li>
+<li><strong>Radio picker:</strong> press <kbd>Enter</kbd> in System to choose another Companion.</li>
+</ul>
+</article>
+<article class="guide-card wide"><h3>07 / Configure the Companion using your phone (local Wi-Fi)</h3>
+<ol>
+<li>Connect NodePad to an already configured and powered-on <strong>MeshCore Companion BLE</strong> radio.</li>
+<li>On the Cardputer, open <strong>System</strong> and press <kbd>P</kbd> to start <strong>Web Setup</strong>.</li>
+<li>On your phone, join the temporary <strong>NodePad-XXXX</strong> Wi-Fi network using the password <strong>shown on the Cardputer screen</strong>. Mobile data or an Internet connection is not required for this local page.</li>
+<li>Open <code>http://192.168.4.1</code> in your phone's browser.</li>
+<li>Read the Companion's connection status and current values. Where supported, you can change its <strong>node name</strong>, <strong>default MeshCore region/flood scope</strong>, and <strong>LoRa frequency, bandwidth, spreading factor and coding rate</strong>.</li>
+<li>Review and confirm changes before saving. Some radio changes may require restarting the Companion. Press <kbd>Esc</kbd> on the Cardputer to stop its temporary Wi-Fi network and return.</li>
+</ol>
+<p class="guide-note"><strong>Important:</strong> MeshCore's <em>region scope</em> is not the radio frequency band. Use only values that match your network and local radio regulations. Incorrect settings may interrupt communication. The setup page is local to the Cardputer, not remote cloud access.</p>
+</article>
+<article class="guide-card wide"><h3>08 / Complete keyboard reference</h3>
+<div class="guide-keygrid">
+<p><kbd>W</kbd> / <kbd>S</kbd> — Move up / down in menus</p>
+<p><kbd>Fn + ;</kbd> / <kbd>Fn + .</kbd> — Alternative up / down</p>
+<p><kbd>Enter</kbd> — Select, open or send</p>
+<p><kbd>Esc</kbd> — Back; close Web Setup Wi-Fi</p>
+<p><kbd>Fn + ,</kbd> / <kbd>Fn + /</kbd> — Left / right navigation</p>
+<p><kbd>1</kbd>–<kbd>7</kbd> — Open the seven main menu items directly</p>
+<p><kbd>R</kbd> — Rescan BLE, refresh contacts or scan repeaters where available</p>
+<p><kbd>Del</kbd> — Delete the last PIN digit or message character</p>
+<p><kbd>M</kbd> in System — Cycle notification volume</p>
+<p><kbd>P</kbd> in System — Start local Wi-Fi setup</p>
+<p><kbd>C</kbd> in System — Show Credits</p>
+<p><kbd>Enter</kbd> in System — Change BLE Companion</p>
+</div>
+</article>
+<article class="guide-card wide"><h3>09 / What you need &amp; known limits</h3>
+<p><strong>Supported hardware:</strong> original M5Stack Cardputer (ESP32-S3), a separate MeshCore Companion BLE radio (Heltec V3 and XIAO Wio are tested examples), and a USB-C data cable for installation. Cardputer ADV support remains unverified.</p>
+<p><strong>Not a standalone LoRa radio:</strong> the Cardputer communicates via BLE; the external Companion handles LoRa. A repeater-only or USB-only radio is not a substitute for a BLE Companion.</p>
+<p><strong>Security:</strong> the paired radio and PIN are stored locally on the Cardputer. Treat the PIN and temporary Wi-Fi password as private. Bluetooth connection does not guarantee LoRa network reachability.</p>
+<p>For firmware and troubleshooting, see the <a href="https://github.com/AL83M/NodePad">GitHub repository</a> and <a href="https://github.com/AL83M/NodePad/issues">issue tracker</a>.</p>
+</article>
+</div></div></section>
 <section class="section" id="gallery"><div class="wrap"><div class="eyebrow">02 / REAL HARDWARE</div><h2>See NodePad in action.</h2><div class="gallery"><img src="./assets/nodepad-boot-screen.webp" alt="NodePad boot screen"><img src="./assets/nodepad-main-menu.webp" alt="NodePad main menu"></div></div></section>
 <section class="section" id="install"><div class="wrap install"><div><div class="eyebrow">03 / WEB INSTALLER</div><h2>Install from your browser.</h2><p class="intro">No Arduino IDE required. Connect your original Cardputer using a USB-C data cable and use Chrome or Edge on a desktop computer.</p><ol class="steps"><li>Connect your original Cardputer via USB-C.</li><li>Open this page in desktop Chrome or Edge.</li><li>Press Install and select the serial port.</li><li>Restart NodePad and connect to a configured MeshCore BLE Companion.</li></ol></div><div class="panel"><div class="status">● NODEPAD v3 / ORIGINAL CARDPUTER</div><h3>Ready to flash?</h3><p>The web installer uses the complete v3 factory firmware image.</p><esp-web-install-button manifest="./manifest-v3.json"><button slot="activate">Install NodePad v3</button><span slot="unsupported">Use a Web Serial compatible desktop browser (Chrome or Edge).</span><span slot="not-allowed">Open the HTTPS version of this website to install.</span></esp-web-install-button><p class="note">Powered by ESP Web Tools. USB access is required.</p><a href="https://github.com/AL83M/NodePad/releases" class="button secondary">Manual download</a><div class="warning">Installing firmware may erase saved settings. Original Cardputer only; Cardputer ADV has not been verified. Configure your separate MeshCore BLE Companion first.</div></div></div></section></main>
 <footer><div class="wrap">© 2026 NodePad · Independent open-source community project · <a href="https://github.com/AL83M/NodePad">GitHub</a></div></footer></body></html>
