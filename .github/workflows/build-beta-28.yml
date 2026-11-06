@@ -1,8 +1,8 @@
-name: Build NodePad v2.8 Beta
+name: Build NodePad v3 Development
 
 on:
   push:
-    branches: ["beta/v2.8-cardputer-adv-web-credits"]
+    branches: ["dev/v3.0"]
     paths: ["firmware/NodePad_V2_8_Beta/**", ".github/workflows/build-beta-28.yml"]
   pull_request:
     paths: ["firmware/NodePad_V2_8_Beta/**", ".github/workflows/build-beta-28.yml"]
@@ -28,7 +28,7 @@ jobs:
           arduino-cli lib update-index
           arduino-cli lib install "M5Cardputer@1.1.1"
           arduino-cli lib install "NimBLE-Arduino@2.3.9"
-      - name: Build one ESP32-S3 image for Cardputer and ADV testing
+      - name: Build v3.0 development image for original Cardputer
         run: |
           set -euo pipefail
           arduino-cli compile \
@@ -38,15 +38,15 @@ jobs:
       - name: Package binaries
         run: |
           set -euo pipefail
-          mkdir -p dist-beta
-          cp build-beta/NodePad_V2_8_Beta.ino.bin dist-beta/NodePad_v2.8_beta_app_0x10000.bin
+          mkdir -p dist-v3
+          cp build-beta/NodePad_V2_8_Beta.ino.bin dist-v3/NodePad_v3_dev_app_0x10000.bin
           if test -s build-beta/NodePad_V2_8_Beta.ino.merged.bin; then
-            cp build-beta/NodePad_V2_8_Beta.ino.merged.bin dist-beta/NodePad_v2.8_beta_factory_0x0000.bin
+            cp build-beta/NodePad_V2_8_Beta.ino.merged.bin dist-v3/NodePad_v3_dev_factory_0x0000.bin
           fi
-          sha256sum dist-beta/* > dist-beta/SHA256SUMS.txt
+          sha256sum dist-v3/* > dist-v3/SHA256SUMS.txt
       - name: Upload beta artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NodePad-v2.8-Beta-unified-ESP32S3
-          path: dist-beta/
+          name: NodePad-v3-DEV-Cardputer
+          path: dist-v3/
           if-no-files-found: error
