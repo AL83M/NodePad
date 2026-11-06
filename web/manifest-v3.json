@@ -7,7 +7,7 @@
       "chipFamily": "ESP32-S3",
       "parts": [
         {
-          "path": "https://github.com/AL83M/NodePad/releases/download/v3.0.1/NodePad_v3_factory_0x0000.bin",
+          "path": "https://github.com/AL83M/NodePad/releases/download/V3.0.1/NodePad_v3_factory_0x0000.bin",
           "offset": 0
         }
       ]
