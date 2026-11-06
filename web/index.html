@@ -18,6 +18,19 @@
 .guide-note{border-left:3px solid #dfae68;padding-left:14px}
 @media(max-width:780px){.guide-grid{grid-template-columns:1fr}.guide-card.wide{grid-column:auto}}
 @media(max-width:520px){.guide-keygrid{grid-template-columns:1fr}}
+
+/* Local Wi-Fi configuration photo gallery */
+.settings-heading{margin:56px 0 24px}
+.settings-heading h3{font-size:clamp(24px,3vw,34px);margin:12px 0}
+.settings-heading p{max-width:720px;color:var(--muted);line-height:1.7;margin:0}
+.settings-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}
+.settings-shot{margin:0;border:1px solid var(--line);background:var(--surface);border-radius:16px;overflow:hidden;min-width:0}
+.settings-shot img{display:block;width:100%;height:auto;aspect-ratio:auto}
+.settings-shot figcaption{padding:18px}
+.settings-shot figcaption strong{display:block;font-size:16px}
+.settings-shot figcaption span{display:block;color:var(--muted);font-size:13px;line-height:1.6;margin-top:6px}
+@media(max-width:900px){.settings-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.settings-gallery{grid-template-columns:1fr}}
 </style></head><body>
 <header class="wrap nav"><a href="#top" class="logo">NODE<span>PAD</span> <small style="font-size:12px;color:#a0aec3">v3</small></a><nav class="links"><a href="#features">Features</a><a href="#guide">Guide</a><a href="#gallery">Gallery</a><a href="https://github.com/AL83M/NodePad">GitHub</a><a class="button" href="#install">Install</a></nav></header>
 <main id="top"><section class="wrap hero"><div><div class="eyebrow">OPEN SOURCE / MESHCORE / M5STACK</div><h1>Your mesh.<br><em>Your pocket.</em></h1><p>Meet NodePad v3. A compact MeshCore companion interface for the original M5Stack Cardputer. Connect, message and explore your mesh network.</p><div class="actions"><a class="button" href="#install">Install NodePad v3</a><a class="button secondary" href="https://github.com/AL83M/NodePad/releases">Download firmware</a></div><p class="note">Original Cardputer tested · ADV compatibility not yet verified</p></div><img src="./assets/nodepad-cardputer.webp" alt="M5Stack Cardputer running NodePad"></section>
@@ -110,6 +123,12 @@
 <p>For firmware and troubleshooting, see the <a href="https://github.com/AL83M/NodePad">GitHub repository</a> and <a href="https://github.com/AL83M/NodePad/issues">issue tracker</a>.</p>
 </article>
 </div></div></section>
-<section class="section" id="gallery"><div class="wrap"><div class="eyebrow">02 / REAL HARDWARE</div><h2>See NodePad in action.</h2><div class="gallery"><img src="./assets/nodepad-boot-screen.webp" alt="NodePad boot screen"><img src="./assets/nodepad-main-menu.webp" alt="NodePad main menu"></div></div></section>
+<section class="section" id="gallery"><div class="wrap"><div class="eyebrow">02 / REAL HARDWARE</div><h2>See NodePad in action.</h2><div class="gallery"><img src="./assets/nodepad-boot-screen.webp" alt="NodePad v3 boot screen" loading="lazy"><img src="./assets/nodepad-main-menu.webp" alt="NodePad main menu" loading="lazy"></div>
+<div class="settings-heading"><div class="eyebrow">LOCAL WI-FI CONFIGURATION</div><h3>Configure your radio from your phone.</h3><p>NodePad hosts a local settings page to configure your connected MeshCore BLE Companion. These are real screenshots from the v3 interface.</p></div>
+<div class="settings-gallery">
+<figure class="settings-shot"><img src="./assets/nodepad-wifi-companion-name.avif" alt="NodePad Radio Settings: BLE connection status, Companion name and Save Name button" loading="lazy" width="420" height="718"><figcaption><strong>Companion name</strong><span>Manage the node name announced by your MeshCore Companion.</span></figcaption></figure>
+<figure class="settings-shot"><img src="./assets/nodepad-wifi-default-region.avif" alt="NodePad Default Region Scope: region name and confirmation before saving" loading="lazy" width="420" height="542"><figcaption><strong>Default region scope</strong><span>Set the flood scope used by your mesh network.</span></figcaption></figure>
+<figure class="settings-shot"><img src="./assets/nodepad-wifi-lora-parameters.avif" alt="NodePad LoRa Parameters: frequency, bandwidth, spreading factor and coding rate" loading="lazy" width="420" height="697"><figcaption><strong>LoRa parameters</strong><span>Review and save radio settings with a safety confirmation.</span></figcaption></figure>
+</div></div></section>
 <section class="section" id="install"><div class="wrap install"><div><div class="eyebrow">03 / WEB INSTALLER</div><h2>Install from your browser.</h2><p class="intro">No Arduino IDE required. Connect your original Cardputer using a USB-C data cable and use Chrome or Edge on a desktop computer.</p><ol class="steps"><li>Connect your original Cardputer via USB-C.</li><li>Open this page in desktop Chrome or Edge.</li><li>Press Install and select the serial port.</li><li>Restart NodePad and connect to a configured MeshCore BLE Companion.</li></ol></div><div class="panel"><div class="status">● NODEPAD v3 / ORIGINAL CARDPUTER</div><h3>Ready to flash?</h3><p>The web installer uses the complete v3 factory firmware image.</p><esp-web-install-button manifest="./manifest-v3.json"><button slot="activate">Install NodePad v3</button><span slot="unsupported">Use a Web Serial compatible desktop browser (Chrome or Edge).</span><span slot="not-allowed">Open the HTTPS version of this website to install.</span></esp-web-install-button><p class="note">Powered by ESP Web Tools. USB access is required.</p><a href="https://github.com/AL83M/NodePad/releases" class="button secondary">Manual download</a><div class="warning">Installing firmware may erase saved settings. Original Cardputer only; Cardputer ADV has not been verified. Configure your separate MeshCore BLE Companion first.</div></div></div></section></main>
 <footer><div class="wrap">© 2026 NodePad · Independent open-source community project · <a href="https://github.com/AL83M/NodePad">GitHub</a></div></footer></body></html>
