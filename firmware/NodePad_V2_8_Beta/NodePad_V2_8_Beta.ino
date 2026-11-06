@@ -1,6 +1,6 @@
 /*
   NodePad - Off-Grid Mesh Terminal for M5Stack Cardputer
-  Version: V2.2.6
+  Version: V3.0 development
 
   UI:
     - 5 second NodePad boot splash
@@ -21,7 +21,7 @@
     - Automatic reconnect
     - APP_START after encrypted connection
     - Select PIN on Cardputer, save per Companion after successful pairing
-    - Soft notification / mute toggle in System (M)
+    - Three notification volume levels in System (M): LOW, MEDIUM, MUTE
 
   Tested target API:
     - M5Cardputer current library
@@ -50,9 +50,10 @@
 // MeshCore default pairing code for headless Companion builds (e.g. XIAO).
 // If you customized its PIN, use that value instead.
 static const uint32_t DEFAULT_MESHCORE_BLE_PIN = 123456;
-static const uint8_t SOFT_NOTIFICATION_VOLUME = 12; // M5Unified volume scale: 0..255
+static const uint8_t SOFT_NOTIFICATION_VOLUME = 12; // low, M5Unified scale 0..255
+static const uint8_t MEDIUM_NOTIFICATION_VOLUME = 40; // medium
 static const char* APP_NAME = "NodePad";
-static const char* APP_VERSION = "V2.8.1 BETA";
+static const char* APP_VERSION = "V3.0 DEV";
 
 // MeshCore device time is UTC.
 // October in Italy is UTC+2; change this to 1 during standard time.
@@ -206,8 +207,12 @@ String blePinInput = "123456";
 bool blePinReplaceOnDigit = true;
 char blePinStatus[44] = "ENTER PIN FOR COMPANION";
 
-// Notification volume can be toggled from System using M.
-bool notificationsSoundEnabled = true;
+// Sound level: 0=mute, 1=low, 2=medium. Cycle with M in System.
+uint8_t notificationSoundLevel = 1;
+uint8_t selectedNotificationVolume() {
+  return notificationSoundLevel == 0 ? 0 :
+         notificationSoundLevel == 2 ? MEDIUM_NOTIFICATION_VOLUME : SOFT_NOTIFICATION_VOLUME;
+}
 
 // Notification audio is requested by BLE callbacks but played from loop().
 // The first queue drain after connection is silent (no beep for old messages).
@@ -2983,11 +2988,11 @@ void drawSystemScreen() {
   D.setCursor(66, 82);
   D.print(APP_VERSION);
   D.setCursor(66, 93);
-  D.print(notificationsSoundEnabled ? "SOFT" : "OFF");
+  D.print(notificationSoundLevel == 0 ? "MUTE" : (notificationSoundLevel == 1 ? "LOW" : "MEDIUM"));
 
   D.setTextColor(C_MUTED, C_BG);
   D.setCursor(7, 105);
-  D.print("ENTER: BLE | M: MUTE");
+  D.print("ENTER: BLE | M: SOUND");
   D.setCursor(7, 116);
   D.print("P: WEB SETUP | C: CREDITS");
 
@@ -3482,11 +3487,12 @@ void handleKeyboard() {
       setScreen(SCREEN_CREDITS);
       return;
     }
-    // M toggles a saved silent mode without opening a settings submenu.
+    // M cycles LOW -> MEDIUM -> MUTE; preserve compatibility with older sound_on.
     if (currentScreen == SCREEN_SYSTEM && (c == 'm' || c == 'M')) {
-      notificationsSoundEnabled = !notificationsSoundEnabled;
-      nodePadPreferences.putBool("sound_on", notificationsSoundEnabled);
-      M5Cardputer.Speaker.setVolume(notificationsSoundEnabled ? SOFT_NOTIFICATION_VOLUME : 0);
+      notificationSoundLevel = (notificationSoundLevel + 1) % 3;
+      nodePadPreferences.putUChar("sound_lvl", notificationSoundLevel);
+      nodePadPreferences.putBool("sound_on", notificationSoundLevel != 0);
+      M5Cardputer.Speaker.setVolume(selectedNotificationVolume());
       uiDirty = true;
       return;
     }
@@ -3551,8 +3557,11 @@ void setup() {
   // different radio when the known one is offline.
   nodePadPreferences.begin("nodepad", false);
   preferredBleAddress = nodePadPreferences.getString("last_radio", "");
-  notificationsSoundEnabled = nodePadPreferences.getBool("sound_on", true);
-  M5Cardputer.Speaker.setVolume(notificationsSoundEnabled ? SOFT_NOTIFICATION_VOLUME : 0);
+  // On upgrade, map the old saved bool to LOW or MUTE.
+  notificationSoundLevel = nodePadPreferences.getUChar("sound_lvl",
+      nodePadPreferences.getBool("sound_on", true) ? 1 : 0);
+  if (notificationSoundLevel > 2) notificationSoundLevel = 1;
+  M5Cardputer.Speaker.setVolume(selectedNotificationVolume());
   Serial.printf("[BLE] Stored Companion: %s\n", preferredBleAddress.c_str());
 
   // Boot -> async scan -> remembered radio (or sole radio) -> main menu.
@@ -3614,7 +3623,7 @@ void loop() {
   if (notificationBeepRequested) {
     notificationBeepRequested = false;
     if (millis() - lastBeepAt >= 600) {
-      if (notificationsSoundEnabled) M5Cardputer.Speaker.tone(1250, 45);
+      if (notificationSoundLevel != 0) M5Cardputer.Speaker.tone(1250, 45);
       lastBeepAt = millis();
     }
   }
